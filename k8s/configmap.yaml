@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aiml-patterns
+  namespace: chatbot
+  labels:
+    app: kubernetes-chatbot
+    component: aiml-config
+data:
+  sample-patterns.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <aiml version="2.0">
+      <!-- Basic greetings -->
+      <category>
+        <pattern>HELLO</pattern>
+        <template>Hi there! How can I help you today?</template>
+      </category>
+      
+      <category>
+        <pattern>HI</pattern>
+        <template>Hello! Welcome to the Kubernetes Chatbot.</template>
+      </category>
+      
+      <!-- Information about the bot -->
+      <category>
+        <pattern>WHAT IS YOUR NAME</pattern>
+        <template>I'm the Kubernetes Chatbot, here to help you with your questions.</template>
+      </category>
+      
+      <category>
+        <pattern>WHO ARE YOU</pattern>
+        <template>I'm an AI chatbot running on Kubernetes, combining AIML patterns with AI capabilities.</template>
+      </category>
+      
+      <!-- Help and capabilities -->
+      <category>
+        <pattern>HELP</pattern>
+        <template>I can help you with various questions. Try asking me about Kubernetes, or just say hello!</template>
+      </category>
+      
+      <!-- Kubernetes-related patterns -->
+      <category>
+        <pattern>* KUBERNETES *</pattern>
+        <template>Kubernetes is a powerful container orchestration platform. What specifically would you like to know about it?</template>
+      </category>
+      
+      <category>
+        <pattern>WHAT IS KUBERNETES</pattern>
+        <template>Kubernetes is an open-source container orchestration system for automating deployment, scaling, and management of containerized applications.</template>
+      </category>
+      
+      <!-- Wildcard patterns -->
+      <category>
+        <pattern>WHAT IS *</pattern>
+        <template>You're asking about <star/>. That's an interesting topic!</template>
+      </category>
+      
+      <!-- Goodbye patterns -->
+      <category>
+        <pattern>BYE</pattern>
+        <template>Goodbye! Feel free to come back anytime if you have more questions.</template>
+      </category>
+      
+      <category>
+        <pattern>THANK YOU</pattern>
+        <template>You're welcome! I'm glad I could help.</template>
+      </category>
+    </aiml>
