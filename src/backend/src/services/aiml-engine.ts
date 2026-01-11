@@ -47,7 +47,7 @@ export class AimlEngine {
           pattern: pattern.toUpperCase().trim(),
           template: template.trim(),
           priority: this.calculatePatternPriority(pattern),
-          category: category.$.topic || undefined
+          category: category.$ && category.$.topic ? category.$.topic : undefined
         };
 
         this.patterns.push(aimlPattern);

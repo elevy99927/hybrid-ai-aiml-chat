@@ -1,45 +1,28 @@
-# Multi-stage build for React frontend
-FROM node:18-alpine AS builder
+FROM node:18-alpine as builder
 
-# Set working directory
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci
+RUN npm install
 
 # Copy source code
 COPY . .
 
-# Build application
+# Build the app
 RUN npm run build
 
 # Production stage with nginx
-FROM nginx:alpine AS production
+FROM nginx:alpine
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/nginx.conf
-
-# Copy built application
+# Copy built files
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Create nginx user and set permissions
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx && \
-    chown -R nginx:nginx /var/log/nginx && \
-    chown -R nginx:nginx /etc/nginx/conf.d
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Switch to non-root user
-USER nginx
+EXPOSE 3000
 
-# Expose port
-EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1
-
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
