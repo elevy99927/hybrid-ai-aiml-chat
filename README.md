@@ -1,165 +1,131 @@
-# Kubernetes Chatbot
+# Simple AIML Chatbot
 
-A Kubernetes-deployed chatbot application that combines AIML-based rule matching with external AI capabilities through liteLLM integration.
+A simple chatbot built with AIML (Artificial Intelligence Markup Language) patterns, featuring a React frontend and Node.js backend.
 
-## Architecture
+## Features
 
-- **Frontend**: React + Vite + TypeScript + Tailwind CSS
-- **Backend**: Node.js + Express + TypeScript
-- **Deployment**: Kubernetes with Helm charts
-- **CI/CD**: GitHub Actions
-- **Container Registry**: DockerHub (elevy99927)
+- 🤖 **AIML Engine**: 10 predefined Q&A patterns
+- 💬 **Chat Interface**: Clean React UI with real-time responses
+- 🐳 **Docker Support**: Full containerization with Docker Compose
+- 🚀 **CI/CD**: GitHub Actions for automated testing and deployment
+- 📦 **Multi-platform**: Supports AMD64 and ARM64 architectures
+
+## Quick Start
+
+### Local Development
+
+1. **Start Backend**:
+   ```bash
+   cd src/backend
+   node simple-server.js
+   ```
+
+2. **Start Frontend**:
+   ```bash
+   cd src/frontend
+   npm install
+   npm run dev
+   ```
+
+3. **Access**: http://localhost:3000
+
+### Docker Compose
+
+1. **Build and Run**:
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Access**: 
+   - Frontend: http://localhost:3000
+   - Backend API: http://localhost:3001
+
+## AIML Patterns
+
+The chatbot responds to these patterns:
+- `hello` / `hi`
+- `what is your name`
+- `how are you`
+- `what can you do`
+- `help`
+- `thank you`
+- `bye`
+- `what time is it`
+- `what is the weather`
+
+## API Endpoints
+
+- `GET /api/health` - Health check
+- `POST /api/chat` - Send message to chatbot
+- `GET /api/patterns` - View loaded patterns
+
+## Docker Images
+
+Images are automatically built and pushed to Docker Hub:
+- `elevy99927/aiml-chatbot-backend:latest`
+- `elevy99927/aiml-chatbot-frontend:latest`
+
+## GitHub Actions Setup
+
+To enable automatic Docker image builds, add this secret to your GitHub repository:
+
+1. Go to **Settings** → **Secrets and variables** → **Actions**
+2. Add new repository secret:
+   - **Name**: `DOCKER_PASSWORD`
+   - **Value**: Your Docker Hub access token
+
+### Creating Docker Hub Access Token
+
+1. Login to [Docker Hub](https://hub.docker.com)
+2. Go to **Account Settings** → **Security**
+3. Click **New Access Token**
+4. Name: `github-actions`
+5. Permissions: **Read, Write, Delete**
+6. Copy the generated token
 
 ## Project Structure
 
 ```
-src/
-├── frontend/          # React frontend application
-│   ├── src/
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── vite.config.ts
-└── backend/           # Node.js backend API
-    ├── src/
-    ├── package.json
-    └── tsconfig.json
+├── .github/workflows/     # GitHub Actions
+├── src/
+│   ├── backend/          # Node.js API server
+│   │   ├── simple-server.js
+│   │   └── Dockerfile
+│   └── frontend/         # React chat UI
+│       ├── src/
+│       └── Dockerfile
+├── simple-patterns.xml   # AIML patterns
+├── docker-compose.yml    # Container orchestration
+└── README.md
 ```
 
-## Development Setup
+## Development
 
-### Prerequisites
+### Adding New AIML Patterns
 
-- Node.js 18+
-- npm or yarn
-- Docker (for containerization)
-- Kubernetes cluster (for deployment)
+Edit `simple-patterns.xml`:
 
-### Quick Start (Local Development)
-
-```bash
-# Option 1: Use the quick start script
-chmod +x start-local.sh
-./start-local.sh
-
-# Option 2: Manual setup
-# Install dependencies
-cd src/backend && npm install
-cd ../frontend && npm install
-
-# Start services (in separate terminals)
-cd src/backend && npm run dev    # Backend on port 3001
-cd src/frontend && npm run dev   # Frontend on port 3000
+```xml
+<category>
+  <pattern>YOUR PATTERN</pattern>
+  <template>Bot response here</template>
+</category>
 ```
 
-**Access:**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:3001
-- Health check: http://localhost:3001/health
-
-### Docker Deployment
+### Testing
 
 ```bash
-# Build and run with Docker Compose
+# Backend tests
+cd src/backend && npm test
+
+# Frontend tests  
+cd src/frontend && npm test
+
+# Docker Compose test
 docker-compose up -d
-
-# Or build individual images
-docker build -t elevy99927/kubernetes-chatbot-backend:latest src/backend/
-docker build -t elevy99927/kubernetes-chatbot-frontend:latest src/frontend/
+curl -X POST localhost:3001/api/chat -H "Content-Type: application/json" -d '{"message": "hello"}'
 ```
-
-### Kubernetes Deployment
-
-```bash
-# Option 1: Use deployment script
-chmod +x deploy.sh
-./deploy.sh
-
-# Option 2: Manual deployment
-kubectl apply -f k8s/namespace.yaml
-kubectl apply -f k8s/configmap.yaml
-kubectl apply -f k8s/backend-deployment.yaml
-kubectl apply -f k8s/frontend-deployment.yaml
-kubectl apply -f k8s/hpa.yaml
-kubectl apply -f k8s/ingress.yaml
-
-# Check deployment
-kubectl get pods -n chatbot
-```
-
-### Testing the AIML Engine
-
-```bash
-# Test backend health
-curl http://localhost:3001/health
-
-# Test AIML chat
-curl -X POST http://localhost:3001/api/chat \
-  -H 'Content-Type: application/json' \
-  -d '{"message":"hello"}'
-
-# Expected response:
-# {"response":"Hi there! How can I help you today?","source":"aiml","sessionId":"..."}
-```
-
-## Features
-
-- ✅ **Project Structure**: Organized microservice architecture
-- 🚧 **AIML Engine**: Pattern matching and response generation
-- 🚧 **AI Fallback**: Integration with liteLLM for unknown queries
-- 🚧 **Chat Interface**: React-based web UI
-- 🚧 **Admin Panel**: System monitoring and pattern management
-- 🚧 **Kubernetes Deployment**: Helm charts and manifests
-- 🚧 **CI/CD Pipeline**: Automated builds and deployments
-
-## Development Commands
-
-### Frontend
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run lint         # Run ESLint
-npm run test         # Run tests
-```
-
-### Backend
-```bash
-npm run dev          # Start development server with hot reload
-npm run build        # Compile TypeScript
-npm run start        # Start production server
-npm run lint         # Run ESLint
-npm run test         # Run tests
-```
-
-## Next Steps
-
-1. ✅ **Implement AIML Engine** (Task 2) - COMPLETE
-2. 🔄 **Add AI Fallback Service** (Task 3) - Next
-3. 🔄 **Build Backend API** (Task 4) - Next
-4. 🔄 **Create Chat Interface** (Task 6) - Next
-5. 🔄 **Add Admin Panel** (Task 7) - Next
-6. ✅ **Containerize with Docker** (Task 8) - COMPLETE
-7. ✅ **Create Kubernetes manifests** (Task 10) - COMPLETE
-8. 🔄 **Set up CI/CD pipeline** (Task 11) - Next
-
-## 🚀 Deployment Options
-
-### 1. Local Development
-```bash
-./start-local.sh
-```
-
-### 2. Docker Compose
-```bash
-docker-compose up -d
-```
-
-### 3. Kubernetes
-```bash
-./deploy.sh
-```
-
-See [BUILD-DEPLOY.md](BUILD-DEPLOY.md) for detailed instructions.
 
 ## License
 
-MIT
+MIT License
