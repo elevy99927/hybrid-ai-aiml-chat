@@ -8,8 +8,8 @@ on:
 
 env:
   DOCKER_USERNAME: elevy99927
-  BACKEND_IMAGE: elevy99927/aiml-chatbot-backend
-  FRONTEND_IMAGE: elevy99927/aiml-chatbot-frontend
+  BACKEND_IMAGE: elevy99927/hybrid-ai-aiml-chat-backend
+  FRONTEND_IMAGE: elevy99927/hybrid-ai-aiml-chat-frontend
 
 jobs:
   build-and-push:
@@ -28,52 +28,47 @@ jobs:
         username: ${{ env.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Extract metadata for backend
-      id: meta-backend
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.BACKEND_IMAGE }}
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
-
-    - name: Extract metadata for frontend
-      id: meta-frontend
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.FRONTEND_IMAGE }}
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
+    - name: Determine tags
+      id: tags
+      run: |
+        if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
+          echo "BACKEND_TAG=${{ env.BACKEND_IMAGE }}:dev" >> $GITHUB_OUTPUT
+          echo "FRONTEND_TAG=${{ env.FRONTEND_IMAGE }}:dev" >> $GITHUB_OUTPUT
+        elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+          echo "BACKEND_TAG=${{ env.BACKEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
+          echo "FRONTEND_TAG=${{ env.FRONTEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
+        else
+          echo "BACKEND_TAG=${{ env.BACKEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "FRONTEND_TAG=${{ env.FRONTEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+        fi
 
     - name: Build and push backend image
       uses: docker/build-push-action@v5
       with:
-        context: .
-        file: src/backend/Dockerfile
+        context: ./src/backend
+        file: ./src/backend/Dockerfile
         push: true
-        tags: ${{ steps.meta-backend.outputs.tags }}
-        labels: ${{ steps.meta-backend.outputs.labels }}
+        tags: ${{ steps.tags.outputs.BACKEND_TAG }}
         platforms: linux/amd64,linux/arm64
 
     - name: Build and push frontend image
       uses: docker/build-push-action@v5
       with:
-        context: src/frontend
-        file: src/frontend/Dockerfile
+        context: ./src/frontend
+        file: ./src/frontend/Dockerfile
         push: true
-        tags: ${{ steps.meta-frontend.outputs.tags }}
-        labels: ${{ steps.meta-frontend.outputs.labels }}
+        tags: ${{ steps.tags.outputs.FRONTEND_TAG }}
         platforms: linux/amd64,linux/arm64
+
+    - name: Output image tags
+      run: |
+        echo "✅ Backend image pushed: ${{ steps.tags.outputs.BACKEND_TAG }}"
+        echo "✅ Frontend image pushed: ${{ steps.tags.outputs.FRONTEND_TAG }}"
 
     - name: Test images
       run: |
         echo "Testing backend image..."
-        docker run --rm ${{ env.BACKEND_IMAGE }}:latest node --version
+        docker run --rm ${{ steps.tags.outputs.BACKEND_TAG }} node --version
         
         echo "Testing frontend image..."
-        docker run --rm ${{ env.FRONTEND_IMAGE }}:latest node --version
+        docker run --rm ${{ steps.tags.outputs.FRONTEND_TAG }} node --version
