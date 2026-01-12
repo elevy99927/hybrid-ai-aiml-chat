@@ -1,0 +1,119 @@
+name: CI Tests
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: src/backend/package-lock.json
+
+    - name: Install backend dependencies
+      run: |
+        cd src/backend
+        npm ci
+
+    - name: Run backend tests
+      run: |
+        cd src/backend
+        npm test
+
+    - name: Test AIML engine
+      run: |
+        cd src/backend
+        node -e "
+          const { AimlEngine } = require('./src/services/aiml-engine');
+          const fs = require('fs');
+          const engine = new AimlEngine();
+          const patterns = fs.readFileSync('../../simple-patterns.xml', 'utf8');
+          engine.loadAimlFromString(patterns).then(() => {
+            console.log('✅ AIML engine loaded successfully');
+            const response = engine.processMessage('hello');
+            console.log('✅ Test response:', response);
+            process.exit(response ? 0 : 1);
+          }).catch(err => {
+            console.error('❌ AIML engine test failed:', err);
+            process.exit(1);
+          });
+        "
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: src/frontend/package-lock.json
+
+    - name: Install frontend dependencies
+      run: |
+        cd src/frontend
+        npm ci
+
+    - name: Build frontend
+      run: |
+        cd src/frontend
+        npm run build
+
+    - name: Run frontend tests
+      run: |
+        cd src/frontend
+        npm test -- --run
+
+  test-docker-compose:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Test Docker Compose build
+      run: |
+        docker-compose build
+
+    - name: Test Docker Compose up
+      run: |
+        docker-compose up -d
+        sleep 30
+        
+        # Test backend health
+        curl -f http://localhost:3001/api/health || exit 1
+        
+        # Test chat endpoint
+        response=$(curl -s -X POST http://localhost:3001/api/chat \
+          -H "Content-Type: application/json" \
+          -d '{"message": "hello"}')
+        
+        echo "Chat response: $response"
+        
+        # Check if response contains expected text
+        if echo "$response" | grep -q "Hi there"; then
+          echo "✅ Chat test passed"
+        else
+          echo "❌ Chat test failed"
+          exit 1
+        fi
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker-compose down
