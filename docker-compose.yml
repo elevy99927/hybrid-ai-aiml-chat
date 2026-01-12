@@ -3,18 +3,18 @@ version: '3.8'
 services:
   backend:
     build:
-      context: .
-      dockerfile: src/backend/Dockerfile
+      context: ./src/backend
+      dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - "3011:3011"
     restart: unless-stopped
 
   frontend:
     build:
-      context: src/frontend
+      context: ./src/frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3010:3010"
     depends_on:
       - backend
     restart: unless-stopped

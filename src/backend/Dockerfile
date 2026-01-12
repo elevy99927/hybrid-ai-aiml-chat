@@ -2,15 +2,17 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Copy package files
+COPY package*.json ./
+
 # Install dependencies
-RUN npm install express cors xml2js
+RUN npm install
 
-# Copy server file
-COPY src/backend/simple-server.js .
+# Copy source code
+COPY . .
 
-# Copy patterns file  
-COPY simple-patterns.xml .
+# Expose port
+EXPOSE 3011
 
-EXPOSE 3001
-
-CMD ["node", "simple-server.js"]
+# Start the server
+CMD ["npm", "start"]

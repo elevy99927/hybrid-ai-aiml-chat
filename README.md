@@ -1,129 +1,87 @@
-# Simple AIML Chatbot
+# AIML Chatbot
 
-A simple chatbot built with AIML (Artificial Intelligence Markup Language) patterns, featuring a React frontend and Node.js backend.
+A simple AIML-based chatbot with a React frontend and Node.js backend.
 
 ## Features
 
-- 🤖 **AIML Engine**: 10 predefined Q&A patterns
-- 💬 **Chat Interface**: Clean React UI with real-time responses
-- 🐳 **Docker Support**: Full containerization with Docker Compose
-- 🚀 **CI/CD**: GitHub Actions for automated testing and deployment
-- 📦 **Multi-platform**: Supports AMD64 and ARM64 architectures
+- **Backend**: Node.js server on port 3011 that loads all AIML files from `src/backend/data/`
+- **Frontend**: React + Vite application on port 3010 with a clean chatbox interface
+- **AIML Engine**: Processes XML/AIML files with pattern matching and wildcard support
+- **Docker Support**: Full containerization with docker-compose
 
 ## Quick Start
 
-### Local Development
+### Using Docker Compose (Recommended)
 
-1. **Start Backend**:
-   ```bash
-   cd src/backend
-   node simple-server.js
-   ```
+```bash
+docker-compose up
+```
 
-2. **Start Frontend**:
-   ```bash
-   cd src/frontend
-   npm install
-   npm run dev
-   ```
+This will start both services:
+- Frontend: http://localhost:3010
+- Backend: http://localhost:3011
 
-3. **Access**: http://localhost:3000
+### Manual Setup
 
-### Docker Compose
+#### Backend
+```bash
+cd src/backend
+npm install
+npm start
+```
 
-1. **Build and Run**:
-   ```bash
-   docker-compose up --build
-   ```
-
-2. **Access**: 
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
-
-## AIML Patterns
-
-The chatbot responds to these patterns:
-- `hello` / `hi`
-- `what is your name`
-- `how are you`
-- `what can you do`
-- `help`
-- `thank you`
-- `bye`
-- `what time is it`
-- `what is the weather`
+#### Frontend
+```bash
+cd src/frontend
+npm install
+npm run dev
+```
 
 ## API Endpoints
 
-- `GET /api/health` - Health check
-- `POST /api/chat` - Send message to chatbot
-- `GET /api/patterns` - View loaded patterns
+- `GET /` - Server info and pattern count
+- `POST /chat` - Send message to chatbot
+- `GET /patterns` - List all loaded patterns
 
-## Docker Images
+## AIML Files
 
-Images are automatically built and pushed to Docker Hub:
-- `elevy99927/aiml-chatbot-backend:latest`
-- `elevy99927/aiml-chatbot-frontend:latest`
+The backend automatically loads all `.xml` and `.aiml` files from `src/backend/data/`. Currently includes:
+- `casual-chat.xml` - Basic conversational patterns
 
-## GitHub Actions Setup
+## Adding New AIML Patterns
 
-To enable automatic Docker image builds, add this secret to your GitHub repository:
+1. Create or edit `.xml` files in `src/backend/data/`
+2. Use standard AIML 2.0 format
+3. Restart the backend to reload patterns
 
-1. Go to **Settings** → **Secrets and variables** → **Actions**
-2. Add new repository secret:
-   - **Name**: `DOCKER_PASSWORD`
-   - **Value**: Your Docker Hub access token
+## Example AIML Pattern
 
-### Creating Docker Hub Access Token
-
-1. Login to [Docker Hub](https://hub.docker.com)
-2. Go to **Account Settings** → **Security**
-3. Click **New Access Token**
-4. Name: `github-actions`
-5. Permissions: **Read, Write, Delete**
-6. Copy the generated token
+```xml
+<category>
+  <pattern>HELLO</pattern>
+  <template>Hi there! How can I help you?</template>
+</category>
+```
 
 ## Project Structure
 
 ```
-├── .github/workflows/     # GitHub Actions
 ├── src/
-│   ├── backend/          # Node.js API server
-│   │   ├── simple-server.js
+│   ├── backend/          # Node.js server (port 3011)
+│   │   ├── server.js     # Main server file
+│   │   ├── data/         # AIML files directory
+│   │   │   └── casual-chat.xml
+│   │   ├── package.json
 │   │   └── Dockerfile
-│   └── frontend/         # React chat UI
+│   └── frontend/         # React + Vite (port 3010)
 │       ├── src/
+│       │   ├── App.jsx   # Main chat component
+│       │   ├── App.css   # Styling
+│       │   └── main.jsx
+│       ├── package.json
 │       └── Dockerfile
-├── simple-patterns.xml   # AIML patterns
 ├── docker-compose.yml    # Container orchestration
 └── README.md
-```
-
-## Development
-
-### Adding New AIML Patterns
-
-Edit `simple-patterns.xml`:
-
-```xml
-<category>
-  <pattern>YOUR PATTERN</pattern>
-  <template>Bot response here</template>
-</category>
-```
-
-### Testing
-
-```bash
-# Backend tests
-cd src/backend && npm test
-
-# Frontend tests  
-cd src/frontend && npm test
-
-# Docker Compose test
-docker-compose up -d
-curl -X POST localhost:3001/api/chat -H "Content-Type: application/json" -d '{"message": "hello"}'
 ```
 
 ## License
