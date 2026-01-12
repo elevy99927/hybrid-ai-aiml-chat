@@ -84,6 +84,11 @@ The backend automatically loads all `.xml` and `.aiml` files from `src/backend/d
 └── README.md
 ```
 
+
+## AIML xmls
+source from:
+https://github.com/hartez/XmppBot-AIML/tree/master
+
 ## License
 
 MIT License

@@ -7,6 +7,7 @@ function App() {
   ])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [chatMode, setChatMode] = useState('AIML') // AIML, LLM, or Hybrid
   const messagesEndRef = useRef(null)
 
   const scrollToBottom = () => {
@@ -62,12 +63,27 @@ function App() {
     }
   }
 
+  const cycleChatMode = () => {
+    const modes = ['AIML', 'LLM', 'Hybrid']
+    const currentIndex = modes.indexOf(chatMode)
+    const nextIndex = (currentIndex + 1) % modes.length
+    setChatMode(modes[nextIndex])
+  }
+
   return (
     <div className="app">
       <div className="chat-container">
         <div className="chat-header">
           <h1>AIML Chatbot</h1>
           <p>Powered by AIML patterns</p>
+          <div className="mode-selector">
+            <button 
+              onClick={cycleChatMode}
+              className={`mode-button mode-${chatMode.toLowerCase()}`}
+            >
+              {chatMode}
+            </button>
+          </div>
         </div>
         
         <div className="messages-container">
