@@ -24,6 +24,7 @@
   color: white;
   padding: 20px;
   text-align: center;
+  position: relative;
 }
 
 .chat-header h1 {
@@ -36,6 +37,47 @@
   margin: 5px 0 0 0;
   opacity: 0.9;
   font-size: 14px;
+}
+
+.mode-selector {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
+
+.mode-button {
+  padding: 8px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  min-width: 80px;
+}
+
+.mode-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.mode-button.mode-aiml {
+  border-color: #4CAF50;
+  background: rgba(76, 175, 80, 0.2);
+}
+
+.mode-button.mode-llm {
+  border-color: #FF9800;
+  background: rgba(255, 152, 0, 0.2);
+}
+
+.mode-button.mode-hybrid {
+  border-color: #9C27B0;
+  background: rgba(156, 39, 176, 0.2);
 }
 
 .messages-container {

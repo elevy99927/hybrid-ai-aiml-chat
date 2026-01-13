@@ -3,10 +3,11 @@ import './App.css'
 
 function App() {
   const [messages, setMessages] = useState([
-    { type: 'bot', text: 'Hello! I\'m your AIML chatbot. How can I help you today?' }
+    { type: 'bot', text: 'Hello! I\'m your Hybrid AI chatbot. I can use AIML patterns, LLM responses, or a hybrid approach. Click the mode button to switch between modes!' }
   ])
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [chatMode, setChatMode] = useState('AIML') // AIML, LLM, or Hybrid
   const messagesEndRef = useRef(null)
 
   const scrollToBottom = () => {
@@ -33,7 +34,10 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ 
+          message: userMessage,
+          mode: chatMode 
+        }),
       })
 
       if (!response.ok) {
@@ -42,8 +46,16 @@ function App() {
 
       const data = await response.json()
       
-      // Add bot response
-      setMessages(prev => [...prev, { type: 'bot', text: data.response }])
+      // Add bot response with source info
+      const responseText = data.response
+      const sourceInfo = data.source ? ` 💭 ${data.source}` : ''
+      
+      setMessages(prev => [...prev, { 
+        type: 'bot', 
+        text: responseText + sourceInfo,
+        source: data.source,
+        mode: data.mode
+      }])
     } catch (error) {
       console.error('Error:', error)
       setMessages(prev => [...prev, { 
@@ -62,12 +74,27 @@ function App() {
     }
   }
 
+  const cycleChatMode = () => {
+    const modes = ['AIML', 'LLM', 'Hybrid']
+    const currentIndex = modes.indexOf(chatMode)
+    const nextIndex = (currentIndex + 1) % modes.length
+    setChatMode(modes[nextIndex])
+  }
+
   return (
     <div className="app">
       <div className="chat-container">
         <div className="chat-header">
-          <h1>AIML Chatbot</h1>
-          <p>Powered by AIML patterns</p>
+          <h1>Hybrid AI Chatbot</h1>
+          <p>AIML + LLM powered conversations</p>
+          <div className="mode-selector">
+            <button 
+              onClick={cycleChatMode}
+              className={`mode-button mode-${chatMode.toLowerCase()}`}
+            >
+              {chatMode}
+            </button>
+          </div>
         </div>
         
         <div className="messages-container">

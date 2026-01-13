@@ -11,6 +11,53 @@ const PORT = 3011;
 app.use(cors());
 app.use(express.json());
 
+// LLM Service
+class LLMService {
+  constructor() {
+    this.baseUrl = process.env.LITELLM_BASE_URL || 'http://host.docker.internal:8080';
+    this.apiKey = process.env.LITELLM_API_KEY || 'changeit';
+    this.model = 'groq/llama-3.1-8b-instant'; // Hardcoded model as requested
+  }
+
+  async sendMessage(message) {
+    try {
+      console.log(`LLM Service: Sending message to ${this.model}`);
+      
+      const response = await fetch(`${this.baseUrl}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`
+        },
+        body: JSON.stringify({
+          model: this.model,
+          messages: [
+            {
+              role: 'user',
+              content: message
+            }
+          ],
+          max_tokens: 150,
+          temperature: 0.7
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`LLM API error: ${response.status} - ${errorText}`);
+        throw new Error(`LLM API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log(`LLM Service: Received response from ${this.model}`);
+      return data.choices[0]?.message?.content || 'Sorry, I could not generate a response.';
+    } catch (error) {
+      console.error('LLM Service Error:', error);
+      return 'Sorry, the LLM service is currently unavailable.';
+    }
+  }
+}
+
 // AIML Engine
 class AIMLEngine {
   constructor() {
@@ -134,32 +181,127 @@ class AIMLEngine {
   }
 }
 
-// Initialize AIML Engine
+// Initialize AIML Engine and LLM Service
 const aimlEngine = new AIMLEngine();
+const llmService = new LLMService();
+
+// Hybrid Service
+class HybridService {
+  constructor(aimlEngine, llmService) {
+    this.aimlEngine = aimlEngine;
+    this.llmService = llmService;
+  }
+
+  async getResponse(message) {
+    // First try AIML
+    const aimlMatch = this.aimlEngine.findMatch(message);
+    
+    // Check if AIML has a good match (not fallback and not generic wildcard)
+    const isGenericWildcard = aimlMatch.matchType === 'wildcard' && 
+                             aimlMatch.response === "That's interesting! Tell me more about that.";
+    
+    // If AIML has a good match (not fallback and not generic wildcard), use it
+    if (aimlMatch.matchType !== 'fallback' && !isGenericWildcard) {
+      return {
+        response: aimlMatch.response,
+        source: 'AIML',
+        matchType: aimlMatch.matchType,
+        file: aimlMatch.file
+      };
+    }
+
+    // Otherwise, use LLM
+    const llmResponse = await this.llmService.sendMessage(message);
+    return {
+      response: llmResponse,
+      source: 'LLM',
+      matchType: 'llm',
+      file: 'llm-service'
+    };
+  }
+}
+
+const hybridService = new HybridService(aimlEngine, llmService);
 
 // Routes
 app.get('/', (req, res) => {
   res.json({ 
-    message: 'AIML Chatbot Backend Server',
+    message: 'Hybrid AI AIML Chat Backend Server',
     port: PORT,
-    patterns: aimlEngine.patterns.length
+    patterns: aimlEngine.patterns.length,
+    modes: ['AIML', 'LLM', 'Hybrid'],
+    litellm_url: process.env.LITELLM_BASE_URL || 'http://host.docker.internal:8080',
+    llm_model: 'groq/llama-3.1-8b-instant',
+    aiml_data_path: './src/backend/data'
   });
 });
 
-app.post('/chat', (req, res) => {
-  const { message } = req.body;
+app.post('/chat', async (req, res) => {
+  const { message, mode = 'AIML' } = req.body;
   
   if (!message) {
     return res.status(400).json({ error: 'Message is required' });
   }
 
-  const response = aimlEngine.getResponse(message);
-  
-  res.json({
-    input: message,
-    response: response,
-    timestamp: new Date().toISOString()
-  });
+  try {
+    let result;
+
+    switch (mode) {
+      case 'AIML':
+        console.log(`AIML Mode: Processing message with local XML patterns`);
+        const aimlResponse = aimlEngine.getResponse(message);
+        result = {
+          response: aimlResponse,
+          source: 'AIML',
+          mode: 'AIML'
+        };
+        break;
+
+      case 'LLM':
+        console.log(`LLM Mode: Processing message with ${llmService.model}`);
+        const llmResponse = await llmService.sendMessage(message);
+        result = {
+          response: llmResponse,
+          source: 'LLM',
+          mode: 'LLM',
+          model: llmService.model
+        };
+        break;
+
+      case 'Hybrid':
+        console.log(`Hybrid Mode: Trying AIML first, LLM fallback`);
+        const hybridResult = await hybridService.getResponse(message);
+        result = {
+          response: hybridResult.response,
+          source: hybridResult.source,
+          mode: 'Hybrid',
+          matchType: hybridResult.matchType,
+          file: hybridResult.file
+        };
+        if (hybridResult.source === 'LLM') {
+          result.model = llmService.model;
+        }
+        break;
+
+      default:
+        return res.status(400).json({ error: 'Invalid mode. Use AIML, LLM, or Hybrid' });
+    }
+
+    console.log(`Input: "${message}" | Mode: ${mode} | Source: ${result.source}`);
+
+    res.json({
+      input: message,
+      ...result,
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Chat error:', error);
+    res.status(500).json({ 
+      error: 'Internal server error',
+      response: 'Sorry, I encountered an error processing your message.'
+    });
+  }
 });
 
 app.get('/patterns', (req, res) => {
