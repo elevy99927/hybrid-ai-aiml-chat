@@ -2,29 +2,40 @@
 
 ## Introduction
 
-Diagnose and fix the LiteLLM service configuration that is causing 403 authentication errors when the chatbot attempts to access LLM models. The focus is on properly configuring the LiteLLM service itself, including authentication, API keys, and model access permissions.
+Fix the GitHub Actions CI/CD pipeline that is failing with the error "Some specified paths were not resolved, unable to cache dependencies" during Node.js dependency caching, and resolve the frontend test failures.
 
 ## Glossary
 
-- **LiteLLM_Service**: The external LiteLLM proxy service deployed via Helm that provides access to various LLM models
-- **Master_Key**: The authentication key configured in LiteLLM for API access
-- **Model_Access**: Permissions configured in LiteLLM for specific models like groq/llama-3.1-8b-instant
-- **Helm_Configuration**: The values.yaml and configuration files used to deploy LiteLLM
-- **API_Endpoint**: The /v1/chat/completions endpoint that the chatbot calls
+- **GitHub_Actions**: The CI/CD pipeline workflow file
+- **Node_Cache**: The actions/cache step that caches Node.js dependencies
+- **Cache_Path_Error**: The specific error "Some specified paths were not resolved, unable to cache dependencies"
+- **Frontend_Test**: The test step that validates the React frontend
 
 ## Requirements
 
-### Requirement 1: LiteLLM Service Authentication Configuration
+### Requirement 1: Fix Node.js Dependency Caching
 
-**User Story:** As a system administrator, I want to properly configure LiteLLM authentication, so that the chatbot can successfully authenticate and access LLM models.
+**User Story:** As a developer, I want GitHub Actions to successfully cache Node.js dependencies, so that the build doesn't fail.
 
 #### Acceptance Criteria
 
-1. THE LiteLLM_Service SHALL be configured with a valid master key for API authentication
-2. WHEN the chatbot sends requests with the correct API key, THE LiteLLM_Service SHALL accept the authentication
-3. THE LiteLLM_Service SHALL be configured to allow access to the groq/llama-3.1-8b-instant model
-4. WHEN authentication fails, THE LiteLLM_Service SHALL return descriptive error messages
-5. THE Master_Key SHALL be properly set in both LiteLLM configuration and the chatbot environment
+1. WHEN GitHub Actions runs the cache step, THE System SHALL find the specified dependency paths
+2. THE Cache configuration SHALL use correct paths that exist in the repository
+3. WHEN cache paths are resolved, THE Build SHALL proceed without caching errors
+4. THE Cache SHALL include both frontend and backend node_modules directories
+5. THE System SHALL use proper cache key based on package-lock.json files
+
+### Requirement 2: Fix Frontend Test Execution
+
+**User Story:** As a developer, I want the frontend tests to pass in GitHub Actions, so that the CI pipeline completes successfully.
+
+#### Acceptance Criteria
+
+1. THE Frontend test step SHALL install dependencies successfully
+2. WHEN dependencies are installed, THE Tests SHALL run without errors
+3. THE Test environment SHALL have all required Node.js modules available
+4. THE Frontend build SHALL complete successfully before running tests
+5. WHEN tests complete, THE Pipeline SHALL report success or failure clearly
 
 ### Requirement 2: LiteLLM Helm Configuration Validation
 

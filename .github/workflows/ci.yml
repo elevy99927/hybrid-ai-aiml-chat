@@ -19,12 +19,12 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: src/backend/package-lock.json
+        cache-dependency-path: src/backend/package.json
 
     - name: Install backend dependencies
       run: |
         cd src/backend
-        npm ci
+        npm install
 
     - name: Test backend server
       run: |
@@ -69,12 +69,12 @@ jobs:
       with:
         node-version: '18'
         cache: 'npm'
-        cache-dependency-path: src/frontend/package-lock.json
+        cache-dependency-path: src/frontend/package.json
 
     - name: Install frontend dependencies
       run: |
         cd src/frontend
-        npm ci
+        npm install
 
     - name: Build frontend
       run: |
