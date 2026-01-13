@@ -1,25 +1,97 @@
-# AIML Chatbot
+# Hybrid AI AIML Chat
 
-A simple AIML-based chatbot with a React frontend and Node.js backend.
+A hybrid chatbot that combines AIML patterns with LLM responses, featuring a React frontend and Node.js backend.
 
 ## Features
 
-- **Backend**: Node.js server on port 3011 that loads all AIML files from `src/backend/data/`
-- **Frontend**: React + Vite application on port 3010 with a clean chatbox interface
-- **AIML Engine**: Processes XML/AIML files with pattern matching and wildcard support
+- **3 Chat Modes**:
+  - 🤖 **AIML**: Traditional pattern-based responses
+  - 🧠 **LLM**: AI-powered responses via LiteLLM
+  - 🔄 **Hybrid**: Smart combination (AIML first, LLM fallback)
+- **Backend**: Node.js server on port 3011 with multi-mode support
+- **Frontend**: React + Vite application on port 3010 with mode switching
+- **LiteLLM Integration**: Connects to LiteLLM running on Kubernetes/Kind
 - **Docker Support**: Full containerization with docker-compose
 
 ## Quick Start
 
-### Using Docker Compose (Recommended)
+### Prerequisites
+- LiteLLM running on Kind/Kubernetes in `lite-llm` namespace
+- kubectl configured to access your cluster
 
+### Option 1: Automated Start (Recommended)
 ```bash
-docker-compose up
+./start-with-litellm.sh
 ```
 
-This will start both services:
-- Frontend: http://localhost:3010
-- Backend: http://localhost:3011
+This script will:
+1. Start LiteLLM port-forward (8080:4000)
+2. Launch docker-compose
+3. Clean up port-forward on exit
+
+### Option 2: Manual Start
+
+1. **Start LiteLLM Port-Forward**:
+   ```bash
+   kubectl port-forward -n lite-llm svc/lite-helm-litellm 8080:4000
+   ```
+
+2. **Start Services**:
+   ```bash
+   docker-compose up
+   ```
+
+3. **Access**:
+   - Frontend: http://localhost:3010
+   - Backend: http://localhost:3011
+
+## Chat Modes
+
+### AIML Mode 🤖
+- Uses traditional AIML pattern matching
+- Fast, deterministic responses
+- Good for structured conversations
+
+### LLM Mode 🧠  
+- Uses LiteLLM for AI-powered responses
+- Creative, contextual responses
+- Requires LiteLLM service
+
+### Hybrid Mode 🔄
+- Tries AIML patterns first
+- Falls back to LLM for unmatched inputs
+- Best of both worlds
+
+## API Endpoints
+
+- `GET /` - Server info and configuration
+- `POST /chat` - Send message with mode selection
+  ```json
+  {
+    "message": "Hello",
+    "mode": "AIML|LLM|Hybrid"
+  }
+  ```
+- `GET /patterns` - List all AIML patterns
+
+## Configuration
+
+### Environment Variables
+- `LITELLM_BASE_URL`: LiteLLM service URL (default: http://host.docker.internal:8080)
+- `LITELLM_API_KEY`: LiteLLM API key (default: changeit)
+
+### LiteLLM Setup
+The backend connects to LiteLLM via:
+- Port-forward: `kubectl port-forward -n lite-llm svc/lite-helm-litellm 8080:4000`
+- Docker host networking: `host.docker.internal:8080`
+
+## AIML Files
+
+Add AIML patterns to `src/backend/data/`:
+- `casual-chat.xml` - Basic conversational patterns
+- Add more `.xml` or `.aiml` files as needed
+
+## Development
 
 ### Manual Setup
 
@@ -27,7 +99,7 @@ This will start both services:
 ```bash
 cd src/backend
 npm install
-npm start
+LITELLM_BASE_URL=http://localhost:8080 npm start
 ```
 
 #### Frontend
@@ -37,31 +109,11 @@ npm install
 npm run dev
 ```
 
-## API Endpoints
+## Docker Images
 
-- `GET /` - Server info and pattern count
-- `POST /chat` - Send message to chatbot
-- `GET /patterns` - List all loaded patterns
-
-## AIML Files
-
-The backend automatically loads all `.xml` and `.aiml` files from `src/backend/data/`. Currently includes:
-- `casual-chat.xml` - Basic conversational patterns
-
-## Adding New AIML Patterns
-
-1. Create or edit `.xml` files in `src/backend/data/`
-2. Use standard AIML 2.0 format
-3. Restart the backend to reload patterns
-
-## Example AIML Pattern
-
-```xml
-<category>
-  <pattern>HELLO</pattern>
-  <template>Hi there! How can I help you?</template>
-</category>
-```
+When pushed to `dev` branch, GitHub Actions builds:
+- `elevy99927/hybrid-ai-aiml-chat-backend:dev`
+- `elevy99927/hybrid-ai-aiml-chat-frontend:dev`
 
 ## Project Structure
 

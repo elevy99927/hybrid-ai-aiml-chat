@@ -144,3 +144,8 @@ vite.config.ts.timestamp-*
 # lite-llm stuff
 litellm-helm*
 
+# API Keys and secrets
+lite-llm-local-key.txt
+*.key
+*-key.txt
+
