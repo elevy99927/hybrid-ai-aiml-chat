@@ -196,8 +196,12 @@ class HybridService {
     // First try AIML
     const aimlMatch = this.aimlEngine.findMatch(message);
     
-    // If AIML has a good match (not fallback), use it
-    if (aimlMatch.matchType !== 'fallback') {
+    // Check if AIML has a good match (not fallback and not generic wildcard)
+    const isGenericWildcard = aimlMatch.matchType === 'wildcard' && 
+                             aimlMatch.response === "That's interesting! Tell me more about that.";
+    
+    // If AIML has a good match (not fallback and not generic wildcard), use it
+    if (aimlMatch.matchType !== 'fallback' && !isGenericWildcard) {
       return {
         response: aimlMatch.response,
         source: 'AIML',
