@@ -1,18 +1,18 @@
-FROM node:18-alpine
+FROM python:3.7-slim
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy requirements first for better caching
+COPY requirements.txt .
 
 # Install dependencies
-RUN npm install
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
+# Copy application files
 COPY . .
 
 # Expose port
 EXPOSE 3011
 
-# Start the server
-CMD ["npm", "start"]
+# Run the application
+CMD ["python", "app.py"]
