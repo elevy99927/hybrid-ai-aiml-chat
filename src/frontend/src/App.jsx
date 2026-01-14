@@ -11,6 +11,7 @@ function App() {
   const [sessionTokens, setSessionTokens] = useState(0)
   const [totalTokens, setTotalTokens] = useState(0)
   const [totalSpend, setTotalSpend] = useState(0)
+  const [sessionId, setSessionId] = useState(null)
   const messagesEndRef = useRef(null)
 
   // Fetch stats from backend on mount and periodically
@@ -59,7 +60,8 @@ function App() {
         },
         body: JSON.stringify({ 
           message: userMessage,
-          mode: chatMode 
+          mode: chatMode,
+          session_id: sessionId
         }),
       })
 
@@ -68,6 +70,11 @@ function App() {
       }
 
       const data = await response.json()
+      
+      // Store session ID for conversation continuity
+      if (data.session_id && !sessionId) {
+        setSessionId(data.session_id)
+      }
       
       // Update session token count
       const tokens = data.tokens || { total: 0 }
