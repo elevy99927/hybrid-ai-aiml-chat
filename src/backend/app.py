@@ -3,9 +3,14 @@ from flask_cors import CORS
 import os
 import aiml
 from autocorrect import spell
+import requests
 
 app = Flask(__name__)
 CORS(app)
+
+# LiteLLM Configuration
+LITELLM_BASE_URL = os.getenv('LITELLM_BASE_URL', 'http://host.docker.internal:8080')
+LITELLM_API_KEY = os.getenv('LITELLM_API_KEY', '')
 
 BRAIN_FILE = "./data/aiml_pretrained_model.dump"
 k = aiml.Kernel()
@@ -55,21 +60,53 @@ def chat():
         corrected_words = [spell(w) for w in user_message.split()]
         question = " ".join(corrected_words)
         
-        # Get AIML response
-        response = k.respond(question)
-        
-        if response:
+        # Handle different modes
+        if mode == "LLM":
+            # Use LLM only
+            response = get_llm_response(question)
             return jsonify({
                 "response": response,
-                "source": "AIML",
+                "source": "LLM",
                 "mode": mode
             })
-        else:
-            return jsonify({
-                "response": ":)",
-                "source": "AIML",
-                "mode": mode
-            })
+        
+        elif mode == "Hybrid":
+            # Try AIML first, fallback to LLM
+            aiml_response = k.respond(question)
+            
+            # Check if it's a fallback response (starts with "Fallback:")
+            if aiml_response and not aiml_response.startswith("Fallback:"):
+                return jsonify({
+                    "response": aiml_response,
+                    "source": "AIML",
+                    "mode": mode
+                })
+            else:
+                # Use LLM as fallback
+                llm_response = get_llm_response(question)
+                return jsonify({
+                    "response": llm_response,
+                    "source": "LLM (AIML fallback)",
+                    "mode": mode
+                })
+        
+        else:  # AIML mode (default)
+            # Get AIML response
+            response = k.respond(question)
+            
+            if response:
+                return jsonify({
+                    "response": response,
+                    "source": "AIML",
+                    "mode": mode
+                })
+            else:
+                print(f"FALLBACK: No AIML pattern matched for: '{question}'")
+                return jsonify({
+                    "response": ":) (No pattern matched - using fallback)",
+                    "source": "AIML-Fallback",
+                    "mode": mode
+                })
     
     except Exception as e:
         print(f"Error: {str(e)}")
@@ -77,6 +114,41 @@ def chat():
             "response": "Sorry, an error occurred processing your message",
             "source": "error"
         }), 500
+
+
+def get_llm_response(message):
+    """Get response from LiteLLM"""
+    try:
+        response = requests.post(
+            f"{LITELLM_BASE_URL}/chat/completions",
+            headers={
+                "Authorization": f"Bearer {LITELLM_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "groq/llama-3.1-8b-instant",
+                "messages": [
+                    {"role": "system", "content": "You are a helpful and friendly chatbot assistant."},
+                    {"role": "user", "content": message}
+                ],
+                "temperature": 0.7,
+                "max_tokens": 150
+            },
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            data = response.json()
+            return data['choices'][0]['message']['content']
+        else:
+            print(f"LLM API Error: {response.status_code} - {response.text}")
+            return "Sorry, I'm having trouble connecting to the LLM service."
+    
+    except requests.exceptions.Timeout:
+        return "Sorry, the LLM service is taking too long to respond."
+    except Exception as e:
+        print(f"LLM Error: {str(e)}")
+        return "Sorry, I couldn't get a response from the LLM service."
 
 
 @app.route("/get")
