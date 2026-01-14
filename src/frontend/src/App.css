@@ -23,26 +23,59 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 20px;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   position: relative;
 }
 
-.chat-header h1 {
+.token-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  font-size: 12px;
+  min-width: 150px;
+}
+
+.stat-item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.stat-label {
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.stat-value {
+  font-weight: 400;
+  opacity: 0.85;
+  font-family: 'Courier New', monospace;
+}
+
+.header-center {
+  flex: 1;
+  text-align: center;
+}
+
+.header-center h1 {
   margin: 0;
   font-size: 24px;
   font-weight: 600;
 }
 
-.chat-header p {
+.header-center p {
   margin: 5px 0 0 0;
   opacity: 0.9;
   font-size: 14px;
 }
 
 .mode-selector {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  min-width: 150px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .mode-button {

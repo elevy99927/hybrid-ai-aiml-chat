@@ -8,7 +8,30 @@ function App() {
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [chatMode, setChatMode] = useState('AIML') // AIML, LLM, or Hybrid
+  const [sessionTokens, setSessionTokens] = useState(0)
+  const [totalTokens, setTotalTokens] = useState(0)
+  const [totalSpend, setTotalSpend] = useState(0)
   const messagesEndRef = useRef(null)
+
+  // Fetch stats from backend on mount and periodically
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('http://localhost:3011/stats')
+        if (response.ok) {
+          const data = await response.json()
+          setTotalTokens(data.total_tokens || 0)
+          setTotalSpend(data.total_spend || 0)
+        }
+      } catch (error) {
+        console.error('Failed to fetch stats:', error)
+      }
+    }
+
+    fetchStats()
+    const interval = setInterval(fetchStats, 5000) // Refresh every 5 seconds
+    return () => clearInterval(interval)
+  }, [])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -45,6 +68,10 @@ function App() {
       }
 
       const data = await response.json()
+      
+      // Update session token count
+      const tokens = data.tokens || { total: 0 }
+      setSessionTokens(tokens.total)
       
       // Add bot response with source info
       const responseText = data.response
@@ -85,8 +112,24 @@ function App() {
     <div className="app">
       <div className="chat-container">
         <div className="chat-header">
-          <h1>Hybrid AI Chatbot</h1>
-          <p>AIML + LLM powered conversations</p>
+          <div className="token-stats">
+            <div className="stat-item">
+              <span className="stat-label">Session:</span>
+              <span className="stat-value">{sessionTokens} tokens</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Total:</span>
+              <span className="stat-value">{totalTokens} tokens</span>
+            </div>
+            <div className="stat-item">
+              <span className="stat-label">Price:</span>
+              <span className="stat-value">${totalSpend.toFixed(6)}</span>
+            </div>
+          </div>
+          <div className="header-center">
+            <h1>Hybrid AI Chatbot</h1>
+            <p>AIML + LLM powered conversations</p>
+          </div>
           <div className="mode-selector">
             <button 
               onClick={cycleChatMode}
