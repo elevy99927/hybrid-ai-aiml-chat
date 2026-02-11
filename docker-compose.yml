@@ -10,6 +10,7 @@ services:
     environment:
       - LITELLM_BASE_URL=http://host.docker.internal:8080
       - LITELLM_API_KEY=sk-ibt8UbnlxBmt172MqoGrLQ
+      - DEBUG_LLMLINGUA=true
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

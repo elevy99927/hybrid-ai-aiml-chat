@@ -13,6 +13,7 @@ CORS(app, supports_credentials=True)
 # LiteLLM Configuration
 LITELLM_BASE_URL = os.getenv('LITELLM_BASE_URL', 'http://host.docker.internal:8080')
 LITELLM_API_KEY = os.getenv('LITELLM_API_KEY', '')
+DEBUG_LLMLINGUA = 'true' #os.getenv('DEBUG_LLMLINGUA', 'true').lower() == 'true'
 
 BRAIN_FILE = "./data/aiml_pretrained_model.dump"
 k = aiml.Kernel()
@@ -164,6 +165,7 @@ def chat():
         user_message = data.get("message", "")
         mode = data.get("mode", "AIML")
         session_id = data.get("session_id", None)
+        llmlingua_enabled = data.get("llmlingua_enabled", False)
         
         # Generate or use existing session ID
         if not session_id:
@@ -184,7 +186,7 @@ def chat():
         # Handle different modes
         if mode == "LLM":
             # Use LLM only
-            llm_result = get_llm_response(question, session_id)
+            llm_result = get_llm_response(question, session_id, llmlingua_enabled)
             
             # Store conversation history
             if session_id not in session_history:
@@ -197,7 +199,8 @@ def chat():
                 "source": "LLM",
                 "mode": mode,
                 "tokens": llm_result["tokens"],
-                "session_id": session_id
+                "session_id": session_id,
+                "llmlingua_used": llm_result.get("llmlingua_used", False)
             })
         
         elif mode == "Hybrid":
@@ -225,11 +228,12 @@ def chat():
                     "source": "AIML",
                     "mode": mode,
                     "tokens": {"prompt": 0, "completion": 0, "total": 0},
-                    "session_id": session_id
+                    "session_id": session_id,
+                    "llmlingua_used": False
                 })
             else:
                 # Use LLM as fallback
-                llm_result = get_llm_response(question, session_id)
+                llm_result = get_llm_response(question, session_id, llmlingua_enabled)
                 
                 # Update conversation history with LLM response
                 session_history[session_id]['messages'][-1] = {'role': 'bot', 'text': llm_result["content"]}
@@ -239,7 +243,8 @@ def chat():
                     "source": "LLM (AIML fallback)",
                     "mode": mode,
                     "tokens": llm_result["tokens"],
-                    "session_id": session_id
+                    "session_id": session_id,
+                    "llmlingua_used": llm_result.get("llmlingua_used", False)
                 })
         
         else:  # AIML mode (default)
@@ -266,7 +271,7 @@ def chat():
             if is_fallback:
                 print(f"DEBUG: AIML fallback detected, using LLM with context")
                 print(f"DEBUG: History before LLM call: {session_history[session_id]['messages'][-5:]}")
-                llm_result = get_llm_response(question, session_id)
+                llm_result = get_llm_response(question, session_id, llmlingua_enabled)
                 response = llm_result["content"]
                 session_history[session_id]['messages'].append({'role': 'bot', 'text': response})
                 
@@ -275,7 +280,8 @@ def chat():
                     "source": "LLM (AIML fallback)",
                     "mode": mode,
                     "tokens": llm_result["tokens"],
-                    "session_id": session_id
+                    "session_id": session_id,
+                    "llmlingua_used": llm_result.get("llmlingua_used", False)
                 })
             
             # Store bot response in history (non-fallback case)
@@ -287,7 +293,8 @@ def chat():
                     "source": "AIML",
                     "mode": mode,
                     "tokens": {"prompt": 0, "completion": 0, "total": 0},
-                    "session_id": session_id
+                    "session_id": session_id,
+                    "llmlingua_used": False
                 })
             else:
                 print(f"FALLBACK: No AIML pattern matched for: '{question}'")
@@ -296,7 +303,8 @@ def chat():
                     "source": "AIML-Fallback",
                     "mode": mode,
                     "tokens": {"prompt": 0, "completion": 0, "total": 0},
-                    "session_id": session_id
+                    "session_id": session_id,
+                    "llmlingua_used": False
                 })
     
     except Exception as e:
@@ -305,13 +313,98 @@ def chat():
             "response": "Sorry, an error occurred processing your message",
             "source": "error",
             "tokens": {"prompt": 0, "completion": 0, "total": 0},
-            "session_id": session_id if 'session_id' in locals() else str(uuid.uuid4())
+            "session_id": session_id if 'session_id' in locals() else str(uuid.uuid4()),
+            "llmlingua_used": False
         }), 500
 
 
-def get_llm_response(message, session_id=None):
-    """Get response from LiteLLM with conversation context"""
+def get_llm_response(message, session_id=None, llmlingua_enabled=False):
+    """Get response from LiteLLM with conversation context and optional prompt compression"""
     try:
+        llmlingua_used = False
+        compressed_message = message
+        
+        # Apply LLMLingua compression if enabled
+        if llmlingua_enabled:
+            if DEBUG_LLMLINGUA:
+                print("=" * 80)
+                print("DEBUG LLMLINGUA: Compression ENABLED")
+                print(f"DEBUG LLMLINGUA: Original message length: {len(message)} chars")
+                print(f"DEBUG LLMLINGUA: Original message:\n{message}")
+                print("-" * 80)
+            
+            try:
+                from llmlingua import PromptCompressor
+                
+                # Initialize compressor (cached after first use)
+                if not hasattr(get_llm_response, 'compressor'):
+                    if DEBUG_LLMLINGUA:
+                        print("DEBUG LLMLINGUA: Initializing PromptCompressor...")
+                    get_llm_response.compressor = PromptCompressor(
+                        model_name="microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank",
+                        use_llmlingua2=True
+                    )
+                    if DEBUG_LLMLINGUA:
+                        print("DEBUG LLMLINGUA: PromptCompressor initialized successfully")
+                
+                # Compress the prompt
+                if DEBUG_LLMLINGUA:
+                    print("DEBUG LLMLINGUA: Starting compression...")
+                
+                result = get_llm_response.compressor.compress_prompt(
+                    message,
+                    rate=0.5,  # 50% compression
+                    force_tokens=['\n', '?', '!', '.']
+                )
+                
+                compressed_message = result['compressed_prompt']
+                llmlingua_used = True
+                
+                if DEBUG_LLMLINGUA:
+                    print(f"DEBUG LLMLINGUA: Compression successful!")
+                    print(f"DEBUG LLMLINGUA: Compressed message length: {len(compressed_message)} chars")
+                    print(f"DEBUG LLMLINGUA: Compressed message:\n{compressed_message}")
+                    print(f"DEBUG LLMLINGUA: Compression ratio: {result.get('ratio', 'N/A')}")
+                    print(f"DEBUG LLMLINGUA: Original tokens: {result.get('origin_tokens', 'N/A')}")
+                    print(f"DEBUG LLMLINGUA: Compressed tokens: {result.get('compressed_tokens', 'N/A')}")
+                    print("=" * 80)
+                else:
+                    print(f"LLMLingua: Original ({len(message)} chars) -> Compressed ({len(compressed_message)} chars), Ratio: {result.get('ratio', 'N/A')}")
+                
+            except ImportError as e:
+                print(f"WARNING: llmlingua not installed: {str(e)}")
+                print("WARNING: Using mock compression for demonstration")
+                if DEBUG_LLMLINGUA:
+                    print("=" * 80)
+                    print("DEBUG LLMLINGUA: MOCK COMPRESSION MODE")
+                    print(f"DEBUG LLMLINGUA: Original message:\n{message}")
+                    print("-" * 80)
+                
+                # Mock compression: remove extra spaces and some common words
+                words = message.split()
+                # Keep important words, remove some filler words
+                filler_words = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'}
+                compressed_words = [w for w in words if w.lower() not in filler_words or len(words) <= 5]
+                compressed_message = ' '.join(compressed_words)
+                llmlingua_used = True
+                
+                if DEBUG_LLMLINGUA:
+                    print(f"DEBUG LLMLINGUA: Mock compressed message:\n{compressed_message}")
+                    print(f"DEBUG LLMLINGUA: Original: {len(message)} chars, Compressed: {len(compressed_message)} chars")
+                    print(f"DEBUG LLMLINGUA: Compression ratio: {len(compressed_message)/len(message):.2f}x")
+                    print("=" * 80)
+                else:
+                    print(f"Mock LLMLingua: {len(message)} chars -> {len(compressed_message)} chars")
+                    
+            except Exception as e:
+                print(f"WARNING: LLMLingua compression failed: {str(e)}")
+                if DEBUG_LLMLINGUA:
+                    import traceback
+                    traceback.print_exc()
+        else:
+            if DEBUG_LLMLINGUA:
+                print("DEBUG LLMLINGUA: Compression DISABLED (llmlingua_enabled=False)")
+        
         # Build messages with conversation history for context
         messages = [
             {"role": "system", "content": "You are a helpful and friendly chatbot assistant."}
@@ -347,8 +440,8 @@ def get_llm_response(message, session_id=None):
         else:
             print(f"DEBUG LLM: No history found for session {session_id}")
         
-        # Add current message
-        messages.append({"role": "user", "content": message})
+        # Add current message (compressed if LLMLingua was used)
+        messages.append({"role": "user", "content": compressed_message})
         
         response = requests.post(
             f"{LITELLM_BASE_URL}/chat/completions",
@@ -374,25 +467,29 @@ def get_llm_response(message, session_id=None):
                     "prompt": usage.get('prompt_tokens', 0),
                     "completion": usage.get('completion_tokens', 0),
                     "total": usage.get('total_tokens', 0)
-                }
+                },
+                "llmlingua_used": llmlingua_used
             }
         else:
             print(f"LLM API Error: {response.status_code} - {response.text}")
             return {
                 "content": "Sorry, I'm having trouble connecting to the LLM service.",
-                "tokens": {"prompt": 0, "completion": 0, "total": 0}
+                "tokens": {"prompt": 0, "completion": 0, "total": 0},
+                "llmlingua_used": False
             }
     
     except requests.exceptions.Timeout:
         return {
             "content": "Sorry, the LLM service is taking too long to respond.",
-            "tokens": {"prompt": 0, "completion": 0, "total": 0}
+            "tokens": {"prompt": 0, "completion": 0, "total": 0},
+            "llmlingua_used": False
         }
     except Exception as e:
         print(f"LLM Error: {str(e)}")
         return {
             "content": "Sorry, I couldn't get a response from the LLM service.",
-            "tokens": {"prompt": 0, "completion": 0, "total": 0}
+            "tokens": {"prompt": 0, "completion": 0, "total": 0},
+            "llmlingua_used": False
         }
 
 

@@ -65,7 +65,8 @@ function App() {
         body: JSON.stringify({ 
           message: userMessage,
           mode: chatMode,
-          session_id: sessionId
+          session_id: sessionId,
+          llmlingua_enabled: llmLinguaEnabled
         }),
       })
 
@@ -87,12 +88,14 @@ function App() {
       // Add bot response with source info
       const responseText = data.response
       const sourceInfo = data.source ? ` 💭 ${data.source}` : ''
+      const linguaUsed = data.llmlingua_used ? ' 🗜️' : ''
       
       setMessages(prev => [...prev, { 
         type: 'bot', 
-        text: responseText + sourceInfo,
+        text: responseText + sourceInfo + linguaUsed,
         source: data.source,
-        mode: data.mode
+        mode: data.mode,
+        llmlingua_used: data.llmlingua_used
       }])
     } catch (error) {
       console.error('Error:', error)
@@ -142,8 +145,8 @@ function App() {
   }
 
   const copyToClipboard = (text) => {
-    // Remove the source info (💭 ...) before copying
-    const cleanText = text.replace(/\s*💭\s*.+$/, '')
+    // Remove the source info (💭 ...) and LLMLingua indicator (🗜️) before copying
+    const cleanText = text.replace(/\s*💭\s*.+$/, '').replace(/\s*🗜️\s*$/, '')
     navigator.clipboard.writeText(cleanText).then(() => {
       // Optional: Show a brief "Copied!" notification
       console.log('Copied to clipboard')
