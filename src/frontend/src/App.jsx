@@ -115,6 +115,17 @@ function App() {
     setChatMode(modes[nextIndex])
   }
 
+  const copyToClipboard = (text) => {
+    // Remove the source info (💭 ...) before copying
+    const cleanText = text.replace(/\s*💭\s*.+$/, '')
+    navigator.clipboard.writeText(cleanText).then(() => {
+      // Optional: Show a brief "Copied!" notification
+      console.log('Copied to clipboard')
+    }).catch(err => {
+      console.error('Failed to copy:', err)
+    })
+  }
+
   return (
     <div className="app">
       <div className="chat-container">
@@ -153,6 +164,13 @@ function App() {
               <div className="message-content">
                 {message.text}
               </div>
+              <button 
+                className="copy-button"
+                onClick={() => copyToClipboard(message.text)}
+                title="Copy message"
+              >
+                📋
+              </button>
             </div>
           ))}
           {isLoading && (

@@ -125,10 +125,14 @@
 .message {
   display: flex;
   max-width: 70%;
+  align-items: flex-start;
+  gap: 8px;
+  position: relative;
 }
 
 .message.user {
   align-self: flex-end;
+  flex-direction: row-reverse;
 }
 
 .message.bot {
@@ -155,6 +159,44 @@
 .message-content.loading {
   background: #f1f3f4;
   padding: 16px;
+}
+
+.copy-button {
+  background: rgba(0, 0, 0, 0.05);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.message:hover .copy-button {
+  opacity: 1;
+}
+
+.copy-button:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.copy-button:active {
+  background: rgba(0, 0, 0, 0.15);
+  transform: scale(0.95);
+}
+
+.message.user .copy-button {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.message.user .copy-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.message.user .copy-button:active {
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .typing-indicator {

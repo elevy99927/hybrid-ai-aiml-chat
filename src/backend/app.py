@@ -179,6 +179,7 @@ def chat():
         # Apply spell correction
         corrected_words = [spell(w) for w in user_message.split()]
         question = " ".join(corrected_words)
+        print(f"DEBUG: Original: '{user_message}' -> Corrected: '{question}'")
         
         # Handle different modes
         if mode == "LLM":
@@ -256,7 +257,7 @@ def chat():
             # Check if it's a fallback response (contains "Fallback:" anywhere)
             is_fallback = response and "Fallback:" in response
             
-            # Store conversation history
+            # Store conversation history BEFORE calling LLM (so LLM has full context)
             if session_id not in session_history:
                 session_history[session_id] = {'messages': []}
             session_history[session_id]['messages'].append({'role': 'user', 'text': question})
@@ -264,6 +265,7 @@ def chat():
             # If AIML hit fallback, use LLM instead
             if is_fallback:
                 print(f"DEBUG: AIML fallback detected, using LLM with context")
+                print(f"DEBUG: History before LLM call: {session_history[session_id]['messages'][-5:]}")
                 llm_result = get_llm_response(question, session_id)
                 response = llm_result["content"]
                 session_history[session_id]['messages'].append({'role': 'bot', 'text': response})
@@ -276,7 +278,7 @@ def chat():
                     "session_id": session_id
                 })
             
-            # Store bot response in history
+            # Store bot response in history (non-fallback case)
             session_history[session_id]['messages'].append({'role': 'bot', 'text': response})
             
             if response:
@@ -315,14 +317,35 @@ def get_llm_response(message, session_id=None):
             {"role": "system", "content": "You are a helpful and friendly chatbot assistant."}
         ]
         
-        # Add conversation history if available
+        # Add conversation history if available (budget-friendly: last 5 messages only)
         if session_id and session_id in session_history:
             history = session_history[session_id]['messages']
-            # Add last 5 exchanges for context (10 messages total)
-            recent_history = history[-10:] if len(history) > 10 else history
+            print(f"DEBUG LLM: Total history length: {len(history)}")
+            print(f"DEBUG LLM: Full history: {history}")
+            
+            # Keep only last 5 messages for budget optimization
+            recent_history = history[-5:] if len(history) > 5 else history
+            print(f"DEBUG LLM: Recent history (last 5): {recent_history}")
+            
+            # Estimate tokens and truncate if needed
+            total_tokens = 15  # System prompt
+            context_messages = []
+            
             for msg in recent_history:
-                role = "user" if msg['role'] == 'user' else "assistant"
-                messages.append({"role": role, "content": msg['text']})
+                # Rough estimate: 1 token ≈ 0.75 words ≈ 4 characters
+                msg_tokens = len(msg['text']) // 4
+                
+                if total_tokens + msg_tokens < 1800:  # Leave 200 tokens for current message + response
+                    role = "user" if msg['role'] == 'user' else "assistant"
+                    context_messages.append({"role": role, "content": msg['text']})
+                    total_tokens += msg_tokens
+                else:
+                    break  # Stop adding if we're approaching token limit
+            
+            messages.extend(context_messages)
+            print(f"DEBUG LLM: Messages being sent to LLM: {messages}")
+        else:
+            print(f"DEBUG LLM: No history found for session {session_id}")
         
         # Add current message
         messages.append({"role": "user", "content": message})
@@ -337,7 +360,7 @@ def get_llm_response(message, session_id=None):
                 "model": "groq/llama-3.1-8b-instant",
                 "messages": messages,
                 "temperature": 0.7,
-                "max_tokens": 150
+                "max_tokens": 150  # Keep output concise for budget
             },
             timeout=30
         )
