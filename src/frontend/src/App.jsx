@@ -8,6 +8,10 @@ function App() {
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [chatMode, setChatMode] = useState('AIML') // AIML, LLM, or Hybrid
+  const [llmLinguaEnabled, setLlmLinguaEnabled] = useState(false)
+  const [showLinguaHelp, setShowLinguaHelp] = useState(false)
+  const [showModeHelp, setShowModeHelp] = useState(false)
+  const [showStatsHelp, setShowStatsHelp] = useState(false)
   const [sessionTokens, setSessionTokens] = useState(0)
   const [totalTokens, setTotalTokens] = useState(0)
   const [totalSpend, setTotalSpend] = useState(0)
@@ -115,6 +119,28 @@ function App() {
     setChatMode(modes[nextIndex])
   }
 
+  const toggleLlmLingua = () => {
+    setLlmLinguaEnabled(prev => !prev)
+  }
+
+  const toggleLinguaHelp = () => {
+    setShowLinguaHelp(prev => !prev)
+    setShowModeHelp(false) // Close other help
+    setShowStatsHelp(false)
+  }
+
+  const toggleModeHelp = () => {
+    setShowModeHelp(prev => !prev)
+    setShowLinguaHelp(false) // Close other help
+    setShowStatsHelp(false)
+  }
+
+  const toggleStatsHelp = () => {
+    setShowStatsHelp(prev => !prev)
+    setShowLinguaHelp(false)
+    setShowModeHelp(false)
+  }
+
   const copyToClipboard = (text) => {
     // Remove the source info (💭 ...) before copying
     const cleanText = text.replace(/\s*💭\s*.+$/, '')
@@ -130,31 +156,93 @@ function App() {
     <div className="app">
       <div className="chat-container">
         <div className="chat-header">
-          <div className="token-stats">
-            <div className="stat-item">
-              <span className="stat-label">Session:</span>
-              <span className="stat-value">{sessionTokens} tokens</span>
+          <div className="token-stats-wrapper">
+            <div className="token-stats">
+              <div className="stat-item">
+                <span className="stat-label">Session:</span>
+                <span className="stat-value">{sessionTokens} tokens</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Total:</span>
+                <span className="stat-value">{totalTokens} tokens</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-label">Price:</span>
+                <span className="stat-value">${totalSpend.toFixed(6)}</span>
+              </div>
             </div>
-            <div className="stat-item">
-              <span className="stat-label">Total:</span>
-              <span className="stat-value">{totalTokens} tokens</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-label">Price:</span>
-              <span className="stat-value">${totalSpend.toFixed(6)}</span>
-            </div>
+            <button 
+              onClick={toggleStatsHelp}
+              className="help-button stats-help"
+              title="Token usage explained"
+            >
+              ?
+            </button>
+            {showStatsHelp && (
+              <div className="help-tooltip stats-tooltip">
+                <div className="help-content">
+                  <strong>Token Usage</strong>
+                  <p><strong>Session:</strong> Tokens used in current conversation</p>
+                  <p><strong>Total:</strong> All tokens used across all sessions</p>
+                  <p><strong>Price:</strong> Total cost based on token usage</p>
+                </div>
+              </div>
+            )}
           </div>
           <div className="header-center">
             <h1>Hybrid AI Chatbot</h1>
             <p>AIML + LLM powered conversations</p>
           </div>
           <div className="mode-selector">
-            <button 
-              onClick={cycleChatMode}
-              className={`mode-button mode-${chatMode.toLowerCase()}`}
-            >
-              {chatMode}
-            </button>
+            <div className="control-group">
+              <button 
+                onClick={toggleLlmLingua}
+                className={`llmlingua-button ${llmLinguaEnabled ? 'enabled' : 'disabled'}`}
+                title={`LLMLingua: ${llmLinguaEnabled ? 'Enabled' : 'Disabled'}`}
+              >
+                🗜️ {llmLinguaEnabled ? 'ON' : 'OFF'}
+              </button>
+              <button 
+                onClick={toggleLinguaHelp}
+                className="help-button"
+                title="What is LLMLingua?"
+              >
+                ?
+              </button>
+              {showLinguaHelp && (
+                <div className="help-tooltip">
+                  <div className="help-content">
+                    <strong>LLMLingua</strong>
+                    <p>Compresses prompts up to 20x to reduce tokens and costs while maintaining response quality.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="control-group">
+              <button 
+                onClick={cycleChatMode}
+                className={`mode-button mode-${chatMode.toLowerCase()}`}
+              >
+                {chatMode}
+              </button>
+              <button 
+                onClick={toggleModeHelp}
+                className="help-button"
+                title="Chat modes explained"
+              >
+                ?
+              </button>
+              {showModeHelp && (
+                <div className="help-tooltip">
+                  <div className="help-content">
+                    <strong>Chat Modes</strong>
+                    <p><strong>AIML:</strong> Pattern-based responses (fast, no cost)</p>
+                    <p><strong>LLM:</strong> AI-powered responses (flexible, uses tokens)</p>
+                    <p><strong>Hybrid:</strong> Best of both worlds</p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         
