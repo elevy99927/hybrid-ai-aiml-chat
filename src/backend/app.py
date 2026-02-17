@@ -208,7 +208,8 @@ def chat():
                 "mode": mode,
                 "tokens": llm_result["tokens"],
                 "session_id": session_id,
-                "llmlingua_used": llm_result.get("llmlingua_used", False)
+                "llmlingua_used": llm_result.get("llmlingua_used", False),
+                "error": llm_result.get("error")
             })
         
         elif mode == "Hybrid":
@@ -252,7 +253,8 @@ def chat():
                     "mode": mode,
                     "tokens": llm_result["tokens"],
                     "session_id": session_id,
-                    "llmlingua_used": llm_result.get("llmlingua_used", False)
+                    "llmlingua_used": llm_result.get("llmlingua_used", False),
+                    "error": llm_result.get("error")
                 })
         
         else:  # AIML mode (default)
@@ -289,7 +291,8 @@ def chat():
                     "mode": mode,
                     "tokens": llm_result["tokens"],
                     "session_id": session_id,
-                    "llmlingua_used": llm_result.get("llmlingua_used", False)
+                    "llmlingua_used": llm_result.get("llmlingua_used", False),
+                    "error": llm_result.get("error")
                 })
             
             # Store bot response in history (non-fallback case)
@@ -483,28 +486,39 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
                     "completion": usage.get('completion_tokens', 0),
                     "total": usage.get('total_tokens', 0)
                 },
-                "llmlingua_used": llmlingua_used
+                "llmlingua_used": llmlingua_used,
+                "error": None
             }
         else:
-            print(f"LLM API Error: {response.status_code} - {response.text}")
+            error_msg = f"Status {response.status_code}"
+            try:
+                error_data = response.json()
+                error_msg = error_data.get('error', {}).get('message', error_msg)
+            except:
+                error_msg = response.text[:200] if response.text else error_msg
+            
+            print(f"LLM API Error: {response.status_code} - {error_msg}")
             return {
                 "content": "Sorry, I'm having trouble connecting to the LLM service.",
                 "tokens": {"prompt": 0, "completion": 0, "total": 0},
-                "llmlingua_used": False
+                "llmlingua_used": False,
+                "error": error_msg
             }
     
     except requests.exceptions.Timeout:
         return {
             "content": "Sorry, the LLM service is taking too long to respond.",
             "tokens": {"prompt": 0, "completion": 0, "total": 0},
-            "llmlingua_used": False
+            "llmlingua_used": False,
+            "error": "Request timeout (30s)"
         }
     except Exception as e:
         print(f"LLM Error: {str(e)}")
         return {
             "content": "Sorry, I couldn't get a response from the LLM service.",
             "tokens": {"prompt": 0, "completion": 0, "total": 0},
-            "llmlingua_used": False
+            "llmlingua_used": False,
+            "error": str(e)
         }
 
 

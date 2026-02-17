@@ -16,6 +16,7 @@ function App() {
   const [totalTokens, setTotalTokens] = useState(0)
   const [totalSpend, setTotalSpend] = useState(0)
   const [sessionId, setSessionId] = useState(null)
+  const [llmError, setLlmError] = useState(null)
   const messagesEndRef = useRef(null)
 
   // Fetch stats from backend on mount and periodically
@@ -76,6 +77,13 @@ function App() {
 
       const data = await response.json()
       
+      // Check for LiteLLM errors
+      if (data.error) {
+        setLlmError(data.error)
+      } else {
+        setLlmError(null)
+      }
+      
       // Store session ID for conversation continuity
       if (data.session_id && !sessionId) {
         setSessionId(data.session_id)
@@ -83,9 +91,9 @@ function App() {
       
       // Update session token count
       const tokens = data.tokens || { total: 0 }
-      setSessionTokens(tokens.total)
+      setSessionTokens(prev => prev + tokens.total)
       
-      // Add bot response with source info
+      // Add bot response with source info and token count
       const responseText = data.response
       const sourceInfo = data.source ? ` 💭 ${data.source}` : ''
       const linguaUsed = data.llmlingua_used ? ' 🗜️' : ''
@@ -95,10 +103,12 @@ function App() {
         text: responseText + sourceInfo + linguaUsed,
         source: data.source,
         mode: data.mode,
-        llmlingua_used: data.llmlingua_used
+        llmlingua_used: data.llmlingua_used,
+        tokens: tokens
       }])
     } catch (error) {
       console.error('Error:', error)
+      setLlmError(error.message || 'Connection error')
       setMessages(prev => [...prev, { 
         type: 'bot', 
         text: 'Sorry, I\'m having trouble connecting to the server. Please try again.' 
@@ -254,6 +264,13 @@ function App() {
             <div key={index} className={`message ${message.type}`}>
               <div className="message-content">
                 {message.text}
+                {message.tokens && message.tokens.total > 0 && (
+                  <div className="token-info">
+                    <span className="token-badge" title={`Prompt: ${message.tokens.prompt} | Completion: ${message.tokens.completion}`}>
+                      🎫 {message.tokens.total} tokens
+                    </span>
+                  </div>
+                )}
               </div>
               <button 
                 className="copy-button"
@@ -277,6 +294,22 @@ function App() {
           )}
           <div ref={messagesEndRef} />
         </div>
+
+        {llmError && (
+          <div className="error-container">
+            <div className="error-message">
+              <span className="error-icon">⚠️</span>
+              <span className="error-text">LiteLLM Error: {llmError}</span>
+              <button 
+                className="error-close"
+                onClick={() => setLlmError(null)}
+                title="Dismiss error"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="input-container">
           <div className="input-wrapper">
