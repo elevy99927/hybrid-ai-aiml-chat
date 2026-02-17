@@ -9,7 +9,10 @@ services:
       - "3011:3011"
     environment:
       - LITELLM_BASE_URL=http://host.docker.internal:8080
-      - LITELLM_API_KEY=sk-ibt8UbnlxBmt172MqoGrLQ
+      - LITELLM_API_KEY=sk-uNkngIaEglGI5HojaGQ4hQ
+      - LITELLM_MODEL=gemini/gemini-2.5-flash-lite #gemini-3-flash-preview
+      - LLMLINGUA_MODEL=microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank
+      - LLMLINGUA_DEVICE=cpu
       - DEBUG_LLMLINGUA=true
     extra_hosts:
       - "host.docker.internal:host-gateway"
