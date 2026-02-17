@@ -268,7 +268,7 @@ def chat():
             # Check if it's a fallback response (contains "Fallback:" anywhere)
             is_fallback = response and "Fallback:" in response
             
-            # Store conversation history BEFORE calling LLM (so LLM has full context)
+            # Store conversation history
             if session_id not in session_history:
                 session_history[session_id] = {'messages': []}
             session_history[session_id]['messages'].append({'role': 'user', 'text': question})
