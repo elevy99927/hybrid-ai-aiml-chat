@@ -14,6 +14,8 @@ CORS(app, supports_credentials=True)
 LITELLM_BASE_URL = os.getenv('LITELLM_BASE_URL', 'http://host.docker.internal:8080')
 LITELLM_API_KEY = os.getenv('LITELLM_API_KEY', '')
 LITELLM_MODEL = os.getenv('LITELLM_MODEL', '')
+LITELLM_MAX_CONTEXT_TOKENS = int(os.getenv('LITELLM_MAX_CONTEXT_TOKENS', '1800'))
+LITELLM_MAX_COMPLETION_TOKENS = int(os.getenv('LITELLM_MAX_COMPLETION_TOKENS', '150'))
 
 # LLMLingua Configuration
 LLMLINGUA_MODEL = os.getenv('LLMLINGUA_MODEL', 'microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank')
@@ -403,23 +405,37 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
             recent_history = history[-5:] if len(history) > 5 else history
             print(f"DEBUG LLM: Recent history (last 5): {recent_history}")
             
-            # Estimate tokens and truncate if needed
+            # Sliding window approach: prioritize recent messages, drop oldest when exceeding limit
             total_tokens = 15  # System prompt
             context_messages = []
             
+            # First pass: add all messages
             for msg in recent_history:
                 # Rough estimate: 1 token ≈ 0.75 words ≈ 4 characters
                 msg_tokens = len(msg['text']) // 4
-                
-                if total_tokens + msg_tokens < 1800:  # Leave 200 tokens for current message + response
-                    role = "user" if msg['role'] == 'user' else "assistant"
-                    context_messages.append({"role": role, "content": msg['text']})
-                    total_tokens += msg_tokens
-                else:
-                    break  # Stop adding if we're approaching token limit
+                role = "user" if msg['role'] == 'user' else "assistant"
+                context_messages.append({
+                    "role": role, 
+                    "content": msg['text'],
+                    "tokens": msg_tokens
+                })
+                total_tokens += msg_tokens
+            
+            # Second pass: if exceeds limit, remove oldest messages until within budget
+            while total_tokens > LITELLM_MAX_CONTEXT_TOKENS and len(context_messages) > 0:
+                removed = context_messages.pop(0)  # Remove oldest message
+                total_tokens -= removed['tokens']
+                if DEBUG_LLMLINGUA:
+                    print(f"DEBUG LLM: Removed oldest message ({removed['tokens']} tokens) to stay within budget")
+            
+            # Clean up: remove 'tokens' field before sending to LLM
+            for msg in context_messages:
+                del msg['tokens']
             
             messages.extend(context_messages)
             print(f"DEBUG LLM: Messages being sent to LLM: {messages}")
+            if DEBUG_LLMLINGUA:
+                print(f"DEBUG LLM: Final context size: {total_tokens} tokens (limit: {LITELLM_MAX_CONTEXT_TOKENS})")
         else:
             print(f"DEBUG LLM: No history found for session {session_id}")
         
@@ -452,7 +468,7 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
                 "model": LITELLM_MODEL,
                 "messages": messages,
                 "temperature": 0.7,
-                "max_tokens": 150  # Keep output concise for budget
+                "max_tokens": LITELLM_MAX_COMPLETION_TOKENS
             },
             timeout=30
         )
