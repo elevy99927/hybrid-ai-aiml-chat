@@ -16,6 +16,7 @@ LITELLM_API_KEY = os.getenv('LITELLM_API_KEY', '')
 LITELLM_MODEL = os.getenv('LITELLM_MODEL', '')
 LITELLM_MAX_CONTEXT_TOKENS = int(os.getenv('LITELLM_MAX_CONTEXT_TOKENS', '1800'))
 LITELLM_MAX_COMPLETION_TOKENS = int(os.getenv('LITELLM_MAX_COMPLETION_TOKENS', '150'))
+LITELLM_SYSTEM_PROMPT = os.getenv('LITELLM_SYSTEM_PROMPT', 'You are a helpful and friendly chatbot assistant.')
 
 # LLMLingua Configuration
 LLMLINGUA_MODEL = os.getenv('LLMLINGUA_MODEL', 'microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank')
@@ -395,7 +396,7 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
         
         # Build messages with conversation history for context
         messages = [
-            {"role": "system", "content": "You are a helpful and friendly chatbot assistant."}
+            {"role": "system", "content": LITELLM_SYSTEM_PROMPT}
         ]
         
         # Add conversation history if available (budget-friendly: last 5 messages only)
