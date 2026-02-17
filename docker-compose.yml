@@ -10,7 +10,10 @@ services:
     environment:
       - LITELLM_BASE_URL=http://host.docker.internal:8080
       - LITELLM_API_KEY=sk-uNkngIaEglGI5HojaGQ4hQ
-      - LITELLM_MODEL=gemini/gemini-2.5-flash-lite #gemini-3-flash-preview
+      - LITELLM_MODEL=eu.amazon.nova-2-lite-v1:0
+                     #gemini/gemini-2.0-flash-lite-001
+                     #gemini/gemini-2.5-flash-lite 
+                     #gemini-3-flash-preview
       - LLMLINGUA_MODEL=microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank
       - LLMLINGUA_DEVICE=cpu
       - DEBUG_LLMLINGUA=true
