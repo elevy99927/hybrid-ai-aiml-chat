@@ -13,6 +13,12 @@ CORS(app, supports_credentials=True)
 # LiteLLM Configuration
 LITELLM_BASE_URL = os.getenv('LITELLM_BASE_URL', 'http://host.docker.internal:8080')
 LITELLM_API_KEY = os.getenv('LITELLM_API_KEY', '')
+LITELLM_MODEL = os.getenv('LITELLM_MODEL', '')
+
+# LLMLingua Configuration
+LLMLINGUA_MODEL = os.getenv('LLMLINGUA_MODEL', 'microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank')
+LLMLINGUA_DEVICE = os.getenv('LLMLINGUA_DEVICE', 'cpu')
+
 DEBUG_LLMLINGUA = 'true' #os.getenv('DEBUG_LLMLINGUA', 'true').lower() == 'true'
 
 BRAIN_FILE = "./data/aiml_pretrained_model.dump"
@@ -341,8 +347,9 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
                     if DEBUG_LLMLINGUA:
                         print("DEBUG LLMLINGUA: Initializing PromptCompressor...")
                     get_llm_response.compressor = PromptCompressor(
-                        model_name="microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank",
-                        use_llmlingua2=True
+                        model_name=LLMLINGUA_MODEL,
+                        use_llmlingua2=True,
+                        device_map=LLMLINGUA_DEVICE
                     )
                     if DEBUG_LLMLINGUA:
                         print("DEBUG LLMLINGUA: PromptCompressor initialized successfully")
@@ -370,37 +377,13 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
                     print("=" * 80)
                 else:
                     print(f"LLMLingua: Original ({len(message)} chars) -> Compressed ({len(compressed_message)} chars), Ratio: {result.get('ratio', 'N/A')}")
-                
-            except ImportError as e:
-                print(f"WARNING: llmlingua not installed: {str(e)}")
-                print("WARNING: Using mock compression for demonstration")
-                if DEBUG_LLMLINGUA:
-                    print("=" * 80)
-                    print("DEBUG LLMLINGUA: MOCK COMPRESSION MODE")
-                    print(f"DEBUG LLMLINGUA: Original message:\n{message}")
-                    print("-" * 80)
-                
-                # Mock compression: remove extra spaces and some common words
-                words = message.split()
-                # Keep important words, remove some filler words
-                filler_words = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being'}
-                compressed_words = [w for w in words if w.lower() not in filler_words or len(words) <= 5]
-                compressed_message = ' '.join(compressed_words)
-                llmlingua_used = True
-                
-                if DEBUG_LLMLINGUA:
-                    print(f"DEBUG LLMLINGUA: Mock compressed message:\n{compressed_message}")
-                    print(f"DEBUG LLMLINGUA: Original: {len(message)} chars, Compressed: {len(compressed_message)} chars")
-                    print(f"DEBUG LLMLINGUA: Compression ratio: {len(compressed_message)/len(message):.2f}x")
-                    print("=" * 80)
-                else:
-                    print(f"Mock LLMLingua: {len(message)} chars -> {len(compressed_message)} chars")
                     
             except Exception as e:
-                print(f"WARNING: LLMLingua compression failed: {str(e)}")
+                print(f"ERROR: LLMLingua compression failed: {str(e)}")
                 if DEBUG_LLMLINGUA:
                     import traceback
                     traceback.print_exc()
+                raise  # Re-raise the exception to fail fast
         else:
             if DEBUG_LLMLINGUA:
                 print("DEBUG LLMLINGUA: Compression DISABLED (llmlingua_enabled=False)")
@@ -443,6 +426,22 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
         # Add current message (compressed if LLMLingua was used)
         messages.append({"role": "user", "content": compressed_message})
         
+        # Debug: Print full prompt being sent to LiteLLM
+        if DEBUG_LLMLINGUA:
+            print("=" * 80)
+            print("DEBUG LLM: FULL PROMPT BEING SENT TO LITELLM")
+            print("-" * 80)
+            for i, msg in enumerate(messages):
+                print(f"Message {i} [{msg['role']}]:")
+                print(f"  Content: {msg['content'][:200]}{'...' if len(msg['content']) > 200 else ''}")
+                print(f"  Length: {len(msg['content'])} chars")
+                print(f"  Est. tokens: {len(msg['content']) // 4}")
+            total_chars = sum(len(msg['content']) for msg in messages)
+            print("-" * 80)
+            print(f"Total prompt length: {total_chars} chars")
+            print(f"Estimated total tokens: {total_chars // 4}")
+            print("=" * 80)
+        
         response = requests.post(
             f"{LITELLM_BASE_URL}/chat/completions",
             headers={
@@ -450,7 +449,7 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
                 "Content-Type": "application/json"
             },
             json={
-                "model": "groq/llama-3.1-8b-instant",
+                "model": LITELLM_MODEL,
                 "messages": messages,
                 "temperature": 0.7,
                 "max_tokens": 150  # Keep output concise for budget
