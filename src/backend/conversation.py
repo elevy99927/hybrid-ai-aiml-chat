@@ -1,6 +1,5 @@
 import os
 import aiml
-from autocorrect import spell
 
 BRAIN_FILE = "./data/aiml_pretrained_model.dump"
 
@@ -31,9 +30,7 @@ while True:
     if query.lower() in ['quit', 'exit', 'bye']:
         print("Goodbye!")
         break
-    query = [spell(w) for w in query.split()]
-    question = " ".join(query)
-    response = k.respond(question)
+    response = k.respond(query)
     if response:
         print("bot > ", response)
     else:

@@ -18,8 +18,8 @@ def read_prompts(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
-            # Skip empty lines and lines starting with ##
-            if line and not line.startswith('##'):
+            # Skip empty lines, lines starting with ##, and markdown horizontal rules (---)
+            if line and not line.startswith('##') and not line.startswith('---'):
                 # Remove markdown formatting if present
                 if line.startswith('**User:**'):
                     line = line.replace('**User:**', '').strip()
