@@ -33,13 +33,19 @@ jobs:
       run: |
         if [ "${{ github.ref }}" = "refs/heads/dev" ]; then
           echo "BACKEND_TAG=${{ env.BACKEND_IMAGE }}:dev" >> $GITHUB_OUTPUT
+          echo "BACKEND_TAG_INCREMENTAL=${{ env.BACKEND_IMAGE }}:dev-${{ github.run_number }}" >> $GITHUB_OUTPUT
           echo "FRONTEND_TAG=${{ env.FRONTEND_IMAGE }}:dev" >> $GITHUB_OUTPUT
+          echo "FRONTEND_TAG_INCREMENTAL=${{ env.FRONTEND_IMAGE }}:dev-${{ github.run_number }}" >> $GITHUB_OUTPUT
         elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
           echo "BACKEND_TAG=${{ env.BACKEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
+          echo "BACKEND_TAG_INCREMENTAL=${{ env.BACKEND_IMAGE }}:main-${{ github.run_number }}" >> $GITHUB_OUTPUT
           echo "FRONTEND_TAG=${{ env.FRONTEND_IMAGE }}:latest" >> $GITHUB_OUTPUT
+          echo "FRONTEND_TAG_INCREMENTAL=${{ env.FRONTEND_IMAGE }}:main-${{ github.run_number }}" >> $GITHUB_OUTPUT
         else
           echo "BACKEND_TAG=${{ env.BACKEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "BACKEND_TAG_INCREMENTAL=${{ env.BACKEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_OUTPUT
           echo "FRONTEND_TAG=${{ env.FRONTEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_OUTPUT
+          echo "FRONTEND_TAG_INCREMENTAL=${{ env.FRONTEND_IMAGE }}:${{ github.sha }}" >> $GITHUB_OUTPUT
         fi
 
     - name: Build and push backend image
@@ -48,7 +54,9 @@ jobs:
         context: ./src/backend
         file: ./src/backend/Dockerfile
         push: true
-        tags: ${{ steps.tags.outputs.BACKEND_TAG }}
+        tags: |
+          ${{ steps.tags.outputs.BACKEND_TAG }}
+          ${{ steps.tags.outputs.BACKEND_TAG_INCREMENTAL }}
         platforms: linux/amd64,linux/arm64
 
     - name: Build and push frontend image
@@ -57,10 +65,16 @@ jobs:
         context: ./src/frontend
         file: ./src/frontend/Dockerfile
         push: true
-        tags: ${{ steps.tags.outputs.FRONTEND_TAG }}
+        tags: |
+          ${{ steps.tags.outputs.FRONTEND_TAG }}
+          ${{ steps.tags.outputs.FRONTEND_TAG_INCREMENTAL }}
         platforms: linux/amd64,linux/arm64
 
     - name: Output image tags
       run: |
-        echo "✅ Backend image pushed: ${{ steps.tags.outputs.BACKEND_TAG }}"
-        echo "✅ Frontend image pushed: ${{ steps.tags.outputs.FRONTEND_TAG }}"
+        echo "✅ Backend images pushed:"
+        echo "  - ${{ steps.tags.outputs.BACKEND_TAG }}"
+        echo "  - ${{ steps.tags.outputs.BACKEND_TAG_INCREMENTAL }}"
+        echo "✅ Frontend images pushed:"
+        echo "  - ${{ steps.tags.outputs.FRONTEND_TAG }}"
+        echo "  - ${{ steps.tags.outputs.FRONTEND_TAG_INCREMENTAL }}"

@@ -4,11 +4,11 @@ image:
   backend:
     repository: elevy99927/hybrid-ai-aiml-chat-backend
     pullPolicy: IfNotPresent
-    tag: "latest"
+    tag: "dev"
   frontend:
     repository: elevy99927/hybrid-ai-aiml-chat-frontend
     pullPolicy: IfNotPresent
-    tag: "latest"
+    tag: "dev"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -81,7 +81,7 @@ affinity: {}
 # Backend environment variables
 backend:
   env:
-    LITELLM_BASE_URL: "http://litellm-proxy:8080"
+    LITELLM_BASE_URL: "http://lite-helm-litellm.lite-llm.svc.cluster.local:4000"
     LITELLM_MODEL: "eu.anthropic.claude-sonnet-4-5-20250929-v1:0"
     LITELLM_MAX_CONTEXT_TOKENS: "3000"  # Maximum tokens for conversation history (sliding window removes oldest messages when exceeded)
     LITELLM_MAX_COMPLETION_TOKENS: "250"  # Maximum tokens for LLM response generation (limits response length)
