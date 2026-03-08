@@ -543,4 +543,4 @@ def get_session_info(session_id):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=3011, debug=True)
+    app.run(host='0.0.0.0', port=3011, debug=os.getenv('DEBUG', 'False').lower() == 'true')

@@ -15,6 +15,9 @@ helm.sh/chart: {{ include "hybrid-chatbot.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- with .Values.customLabels }}
+{{ toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*

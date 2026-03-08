@@ -4,15 +4,22 @@ image:
   backend:
     repository: elevy99927/hybrid-ai-aiml-chat-backend
     pullPolicy: IfNotPresent
-    tag: "dev"
+    tag: "dev-28"
   frontend:
     repository: elevy99927/hybrid-ai-aiml-chat-frontend
     pullPolicy: IfNotPresent
-    tag: "dev"
+    tag: "dev-28"
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
+
+# Custom labels to add to all resources
+customLabels: 
+  project: hybrid-bot
+  # example: "value"
+  # team: "platform"
+  # environment: "production"
 
 serviceAccount:
   create: true
@@ -89,6 +96,7 @@ backend:
     LLMLINGUA_MODEL: "microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank"
     LLMLINGUA_DEVICE: "cpu"
     DEBUG_LLMLINGUA: "true"
+    DEBUG: "true"
   secrets:
     LITELLM_API_KEY: "sk-uNkngIaEglGI5HojaGQ4hQ"  # Set via --set or secrets
 
