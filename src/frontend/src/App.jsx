@@ -22,7 +22,7 @@ function App() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:3011/stats')
+        const response = await fetch('/stats')
         if (response.ok) {
           const data = await response.json()
           setTotalTokens(data.total_tokens || 0)
@@ -57,7 +57,7 @@ function App() {
     setMessages(prev => [...prev, { type: 'user', text: userMessage }])
 
     try {
-      const response = await fetch('http://localhost:3011/chat', {
+      const response = await fetch('/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
