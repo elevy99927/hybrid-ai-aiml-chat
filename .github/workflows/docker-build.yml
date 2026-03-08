@@ -58,6 +58,8 @@ jobs:
           ${{ steps.tags.outputs.BACKEND_TAG }}
           ${{ steps.tags.outputs.BACKEND_TAG_INCREMENTAL }}
         platforms: linux/amd64,linux/arm64
+        cache-from: type=registry,ref=${{ env.BACKEND_IMAGE }}:buildcache
+        cache-to: type=registry,ref=${{ env.BACKEND_IMAGE }}:buildcache,mode=max
 
     - name: Build and push frontend image
       uses: docker/build-push-action@v5
@@ -69,6 +71,8 @@ jobs:
           ${{ steps.tags.outputs.FRONTEND_TAG }}
           ${{ steps.tags.outputs.FRONTEND_TAG_INCREMENTAL }}
         platforms: linux/amd64,linux/arm64
+        cache-from: type=registry,ref=${{ env.FRONTEND_IMAGE }}:buildcache
+        cache-to: type=registry,ref=${{ env.FRONTEND_IMAGE }}:buildcache,mode=max
 
     - name: Output image tags
       run: |
