@@ -4,11 +4,11 @@ image:
   backend:
     repository: elevy99927/hybrid-ai-aiml-chat-backend
     pullPolicy: IfNotPresent
-    tag: "dev"
+    tag: "v1.0.0"
   frontend:
     repository: elevy99927/hybrid-ai-aiml-chat-frontend
     pullPolicy: IfNotPresent
-    tag: "dev"
+    tag: "v1.0.0"
 
 imagePullSecrets: []
 nameOverride: ""
