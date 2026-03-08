@@ -14,23 +14,22 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        node-version: '18'
-        cache: 'npm'
-        cache-dependency-path: src/backend/package.json
+        python-version: '3.9'
+        cache: 'pip'
 
     - name: Install backend dependencies
       run: |
         cd src/backend
-        npm install
+        pip install -r requirements.txt
 
     - name: Test backend server
       run: |
         cd src/backend
         # Start server in background
-        npm start &
+        python app.py &
         SERVER_PID=$!
         
         # Wait for server to start
@@ -42,7 +41,7 @@ jobs:
         # Test chat endpoint
         response=$(curl -s -X POST http://localhost:3011/chat \
           -H "Content-Type: application/json" \
-          -d '{"message": "hello"}')
+          -d '{"message": "hello", "mode": "AIML"}')
         
         echo "Chat response: $response"
         
