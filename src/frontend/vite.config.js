@@ -6,5 +6,15 @@ export default defineConfig({
   server: {
     port: 3010,
     host: true
+  },
+  preview: {
+    port: 3010,
+    host: true,
+    allowedHosts: [
+      '.nip.io',
+      'localhost',
+      '127.0.0.1.nip.io',
+      '127.0.0.1'
+    ]
   }
 })
