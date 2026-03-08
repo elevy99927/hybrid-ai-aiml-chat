@@ -19,15 +19,11 @@ echo "Building and pushing Docker images"
 echo "Tag: ${TAG}"
 echo "=========================================="
 
-# Check if logged in to Docker Hub
-if ! docker info | grep -q "Username: ${DOCKER_USERNAME}"; then
-    echo "Not logged in to Docker Hub. Please run: docker login"
-    exit 1
-fi
 
 # Build backend image
 echo ""
 echo "Building backend image..."
+echo ${BACKEND_IMAGE}:${TAG}
 docker buildx build \
     --platform linux/amd64,linux/arm64 \
     -t "${BACKEND_IMAGE}:${TAG}" \
