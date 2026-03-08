@@ -10,14 +10,13 @@ services:
     environment:
       - LITELLM_BASE_URL=http://host.docker.internal:8080
       - LITELLM_API_KEY=sk-uNkngIaEglGI5HojaGQ4hQ
-      - LITELLM_MODEL=eu.anthropic.claude-sonnet-4-5-20250929-v1:0
+      - LITELLM_MODEL=eu.amazon.nova-2-lite-v1:0
                      ## OLD working models 
                      #gemini/gemini-2.0-flash-lite-001
                      #gemini/gemini-2.5-flash-lite 
                      #gemini-3-flash-preview
       - LITELLM_MAX_CONTEXT_TOKENS=3000
       - LITELLM_MAX_COMPLETION_TOKENS=250
-      - LITELLM_SYSTEM_PROMPT=You are a helpful and friendly chatbot assistant. Answer questions naturally and conversationally. You can discuss any topic the user asks about.
       - LLMLINGUA_MODEL=microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank
       - LLMLINGUA_DEVICE=cpu
       - DEBUG_LLMLINGUA=true

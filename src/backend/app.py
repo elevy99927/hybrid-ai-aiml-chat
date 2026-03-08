@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, session
 from flask_cors import CORS
 import os
 import aiml
+from autocorrect import spell
 import requests
 import uuid
 
@@ -15,7 +16,6 @@ LITELLM_API_KEY = os.getenv('LITELLM_API_KEY', '')
 LITELLM_MODEL = os.getenv('LITELLM_MODEL', '')
 LITELLM_MAX_CONTEXT_TOKENS = int(os.getenv('LITELLM_MAX_CONTEXT_TOKENS', '1800'))
 LITELLM_MAX_COMPLETION_TOKENS = int(os.getenv('LITELLM_MAX_COMPLETION_TOKENS', '150'))
-LITELLM_SYSTEM_PROMPT = os.getenv('LITELLM_SYSTEM_PROMPT', 'You are a helpful and friendly chatbot assistant.')
 
 # LLMLingua Configuration
 LLMLINGUA_MODEL = os.getenv('LLMLINGUA_MODEL', 'microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank')
@@ -186,9 +186,10 @@ def chat():
                 "session_id": session_id
             }), 400
         
-        # Use original message without modification
-        question = user_message
-        print(f"DEBUG: User message: '{question}'")
+        # Apply spell correction
+        corrected_words = [spell(w) for w in user_message.split()]
+        question = " ".join(corrected_words)
+        print(f"DEBUG: Original: '{user_message}' -> Corrected: '{question}'")
         
         # Handle different modes
         if mode == "LLM":
@@ -207,8 +208,7 @@ def chat():
                 "mode": mode,
                 "tokens": llm_result["tokens"],
                 "session_id": session_id,
-                "llmlingua_used": llm_result.get("llmlingua_used", False),
-                "error": llm_result.get("error")
+                "llmlingua_used": llm_result.get("llmlingua_used", False)
             })
         
         elif mode == "Hybrid":
@@ -240,7 +240,7 @@ def chat():
                     "llmlingua_used": False
                 })
             else:
-                # Use LLM as fallback (use compression setting from request)
+                # Use LLM as fallback
                 llm_result = get_llm_response(question, session_id, llmlingua_enabled)
                 
                 # Update conversation history with LLM response
@@ -252,8 +252,7 @@ def chat():
                     "mode": mode,
                     "tokens": llm_result["tokens"],
                     "session_id": session_id,
-                    "llmlingua_used": llm_result.get("llmlingua_used", False),
-                    "error": llm_result.get("error")
+                    "llmlingua_used": llm_result.get("llmlingua_used", False)
                 })
         
         else:  # AIML mode (default)
@@ -268,13 +267,34 @@ def chat():
             response = get_contextual_response(question, session_id, aiml_response)
             print(f"DEBUG: Final Response: {response}")
             
+            # Check if it's a fallback response (contains "Fallback:" anywhere)
+            is_fallback = response and "Fallback:" in response
+            
             # Store conversation history
             if session_id not in session_history:
                 session_history[session_id] = {'messages': []}
             session_history[session_id]['messages'].append({'role': 'user', 'text': question})
+            
+            # If AIML hit fallback, use LLM instead
+            if is_fallback:
+                print(f"DEBUG: AIML fallback detected, using LLM with context")
+                print(f"DEBUG: History before LLM call: {session_history[session_id]['messages'][-5:]}")
+                llm_result = get_llm_response(question, session_id, llmlingua_enabled)
+                response = llm_result["content"]
+                session_history[session_id]['messages'].append({'role': 'bot', 'text': response})
+                
+                return jsonify({
+                    "response": response,
+                    "source": "LLM (AIML fallback)",
+                    "mode": mode,
+                    "tokens": llm_result["tokens"],
+                    "session_id": session_id,
+                    "llmlingua_used": llm_result.get("llmlingua_used", False)
+                })
+            
+            # Store bot response in history (non-fallback case)
             session_history[session_id]['messages'].append({'role': 'bot', 'text': response})
             
-            # Pure AIML mode - no LLM fallback
             if response:
                 return jsonify({
                     "response": response,
@@ -285,9 +305,10 @@ def chat():
                     "llmlingua_used": False
                 })
             else:
+                print(f"FALLBACK: No AIML pattern matched for: '{question}'")
                 return jsonify({
-                    "response": ":) (No pattern matched)",
-                    "source": "AIML",
+                    "response": ":) (No pattern matched - using fallback)",
+                    "source": "AIML-Fallback",
                     "mode": mode,
                     "tokens": {"prompt": 0, "completion": 0, "total": 0},
                     "session_id": session_id,
@@ -371,7 +392,7 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
         
         # Build messages with conversation history for context
         messages = [
-            {"role": "system", "content": LITELLM_SYSTEM_PROMPT}
+            {"role": "system", "content": "You are a helpful and friendly chatbot assistant."}
         ]
         
         # Add conversation history if available (budget-friendly: last 5 messages only)
@@ -462,46 +483,37 @@ def get_llm_response(message, session_id=None, llmlingua_enabled=False):
                     "completion": usage.get('completion_tokens', 0),
                     "total": usage.get('total_tokens', 0)
                 },
-                "llmlingua_used": llmlingua_used,
-                "error": None
+                "llmlingua_used": llmlingua_used
             }
         else:
-            error_msg = f"Status {response.status_code}"
-            try:
-                error_data = response.json()
-                error_msg = error_data.get('error', {}).get('message', error_msg)
-            except:
-                error_msg = response.text[:200] if response.text else error_msg
-            
-            print(f"LLM API Error: {response.status_code} - {error_msg}")
+            print(f"LLM API Error: {response.status_code} - {response.text}")
             return {
                 "content": "Sorry, I'm having trouble connecting to the LLM service.",
                 "tokens": {"prompt": 0, "completion": 0, "total": 0},
-                "llmlingua_used": False,
-                "error": error_msg
+                "llmlingua_used": False
             }
     
     except requests.exceptions.Timeout:
         return {
             "content": "Sorry, the LLM service is taking too long to respond.",
             "tokens": {"prompt": 0, "completion": 0, "total": 0},
-            "llmlingua_used": False,
-            "error": "Request timeout (30s)"
+            "llmlingua_used": False
         }
     except Exception as e:
         print(f"LLM Error: {str(e)}")
         return {
             "content": "Sorry, I couldn't get a response from the LLM service.",
             "tokens": {"prompt": 0, "completion": 0, "total": 0},
-            "llmlingua_used": False,
-            "error": str(e)
+            "llmlingua_used": False
         }
 
 
 @app.route("/get")
 def get_bot_response():
     """Legacy endpoint for compatibility"""
-    question = request.args.get('msg', '')
+    query = request.args.get('msg', '')
+    query = [spell(w) for w in query.split()]
+    question = " ".join(query)
     response = k.respond(question)
     if response:
         return str(response)
