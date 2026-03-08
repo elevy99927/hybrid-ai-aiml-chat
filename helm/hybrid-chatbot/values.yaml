@@ -27,10 +27,10 @@ securityContext: {}
 
 service:
   backend:
-    type: ClusterIP
+    type: ClusterIP  # Options: ClusterIP (internal only), LoadBalancer (external IP), NodePort (node port access)
     port: 3011
   frontend:
-    type: LoadBalancer
+    type: ClusterIP  # Options: ClusterIP (internal only), LoadBalancer (external IP), NodePort (node port access)
     port: 3010
 
 ingress:
@@ -83,14 +83,14 @@ backend:
   env:
     LITELLM_BASE_URL: "http://litellm-proxy:8080"
     LITELLM_MODEL: "eu.anthropic.claude-sonnet-4-5-20250929-v1:0"
-    LITELLM_MAX_CONTEXT_TOKENS: "3000"
-    LITELLM_MAX_COMPLETION_TOKENS: "250"
+    LITELLM_MAX_CONTEXT_TOKENS: "3000"  # Maximum tokens for conversation history (sliding window removes oldest messages when exceeded)
+    LITELLM_MAX_COMPLETION_TOKENS: "250"  # Maximum tokens for LLM response generation (limits response length)
     LITELLM_SYSTEM_PROMPT: "You are a helpful and friendly chatbot assistant. Answer questions naturally and conversationally. You can discuss any topic the user asks about."
     LLMLINGUA_MODEL: "microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank"
     LLMLINGUA_DEVICE: "cpu"
     DEBUG_LLMLINGUA: "true"
   secrets:
-    LITELLM_API_KEY: ""  # Set via --set or secrets
+    LITELLM_API_KEY: "sk-uNkngIaEglGI5HojaGQ4hQ"  # Set via --set or secrets
 
 # Persistence for AIML brain files (optional)
 persistence:
