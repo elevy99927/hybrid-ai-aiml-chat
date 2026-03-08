@@ -1,0 +1,100 @@
+replicaCount: 1
+
+image:
+  backend:
+    repository: elevy99927/hybrid-ai-aiml-chat-backend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  frontend:
+    repository: elevy99927/hybrid-ai-aiml-chat-frontend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  backend:
+    type: ClusterIP
+    port: 3011
+  frontend:
+    type: LoadBalancer
+    port: 3010
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: chatbot.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  backend:
+    limits:
+      cpu: 1000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  frontend:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+autoscaling:
+  backend:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 80
+  frontend:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Backend environment variables
+backend:
+  env:
+    LITELLM_BASE_URL: "http://litellm-proxy:8080"
+    LITELLM_MODEL: "eu.anthropic.claude-sonnet-4-5-20250929-v1:0"
+    LITELLM_MAX_CONTEXT_TOKENS: "3000"
+    LITELLM_MAX_COMPLETION_TOKENS: "250"
+    LITELLM_SYSTEM_PROMPT: "You are a helpful and friendly chatbot assistant. Answer questions naturally and conversationally. You can discuss any topic the user asks about."
+    LLMLINGUA_MODEL: "microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank"
+    LLMLINGUA_DEVICE: "cpu"
+    DEBUG_LLMLINGUA: "true"
+  secrets:
+    LITELLM_API_KEY: ""  # Set via --set or secrets
+
+# Persistence for AIML brain files (optional)
+persistence:
+  enabled: false
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi

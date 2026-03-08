@@ -1,0 +1,14 @@
+apiVersion: v2
+name: hybrid-chatbot
+description: A Helm chart for Hybrid AI AIML Chatbot with LLM fallback
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - chatbot
+  - aiml
+  - llm
+  - ai
+maintainers:
+  - name: Eyal Levy
+    email: elevy99927@example.com
