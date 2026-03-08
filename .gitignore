@@ -154,3 +154,6 @@ lite-llm-local-key.txt
 
 Easy-Chatbot
 
+# Helm chart packages
+.helm-packages/
+
