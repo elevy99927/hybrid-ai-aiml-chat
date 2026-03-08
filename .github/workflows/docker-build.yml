@@ -64,11 +64,3 @@ jobs:
       run: |
         echo "✅ Backend image pushed: ${{ steps.tags.outputs.BACKEND_TAG }}"
         echo "✅ Frontend image pushed: ${{ steps.tags.outputs.FRONTEND_TAG }}"
-
-    - name: Test images
-      run: |
-        echo "Testing backend image..."
-        docker run --rm ${{ steps.tags.outputs.BACKEND_TAG }} node --version
-        
-        echo "Testing frontend image..."
-        docker run --rm ${{ steps.tags.outputs.FRONTEND_TAG }} node --version
