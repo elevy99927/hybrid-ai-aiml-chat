@@ -1,0 +1,29 @@
+ the test!
+
+Step 1 - 
+Mode: LLM (3000 tokens context)
+Compression Off
+Tokens: 
+	start: 154767
+	end: 200101
+    total: 45,334
+Command: python scripts/test-chat.py --mode LLM
+
+Step 2 - 
+Mode: Hybrid
+Compression Off
+Tokens: 
+	start: 138266
+	end:  145853
+    total:  7,587
+Command: python scripts/test-chat.py --mode Hybrid
+
+
+Step 3 - 
+Mode: Hybrid
+Compression On
+Tokens: 
+	start: 145853
+	end:  154767
+    total: 8,914
+Command: python scripts/test-chat.py --mode Hybrid --compress

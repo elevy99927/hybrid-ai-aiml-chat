@@ -1,0 +1,375 @@
+Reading prompts from: ./prompts/full-chat.md
+Found 52 prompts
+
+================================================================================
+Test Configuration:
+  Mode: Hybrid
+  Compression: Enabled
+  Backend: http://localhost:3011
+  Delay: 1.0s
+================================================================================
+
+
+[1/52] User: # Hybrid vs LLM Token Comparison – Extended Chat Script
+Session ID: 4581df84-aa4e-426b-a433-3a252377e5f8
+Bot: I see you've shared a title that suggests you're interested in comparing hybrid systems with LLM (Large Language Model) token usage, particularly in an extended chat scenario.
+
+I'd be happy to discuss this topic! Here are some aspects we could explore:
+
+**Token Usage Patterns:**
+- How hybrid systems (combining rule-based + LLM components) might use tokens differently than pure LLM approaches
+- Token efficiency in longer conversations
+- Context management strategies
+
+**Hybrid System Advantages:**
+- Using rules/templates for common queries to save tokens
+- Reserving LLM calls for complex reasoning
+- Cost optimization
+
+**Comparison Metrics:**
+- Total tokens consumed
+- Response quality
+- Latency
+- Cost per conversation
+
+Did you have a specific script or comparison data you wanted to share or discuss? Or would you like to explore any particular aspect of how hybrid chatbot architectures compare to pure LLM approaches in terms of token efficiency?
+
+Feel free to share more details about what you're working on or what you'd like to know!
+Source: LLM (AIML fallback) | Tokens: 334 (prompt: 104, completion: 230)
+
+[2/52] User: Hello
+Bot: What can I call you?
+Source: AIML
+
+[3/52] User: Hi
+Bot: Hi there. What is your name?
+Source: AIML
+
+[4/52] User: Good morning
+Bot: Hello and how are you this morning?
+Source: AIML
+
+[5/52] User: How are you?
+Bot: Everything is running smoothly.
+Source: AIML
+
+[6/52] User: What is your name?
+Bot: My name is Nameless.
+Source: AIML
+
+[7/52] User: Who created you?
+Bot: I was created by .
+Source: AIML
+
+[8/52] User: Are you a robot?
+Bot: How did you know I am a machine?
+Source: AIML
+
+[9/52] User: Do you have feelings?
+Bot: As a robot I do not have any human emotion. My apparent emotional responses are simply algorithms designed to make me easier to interact with.
+Source: AIML
+
+[10/52] User: Are you happy?
+Bot: Yes  I can say I am very happy.
+Source: AIML
+
+[11/52] User: Are you sad?
+Bot: No I am as happy as ever.
+Source: AIML
+
+[12/52] User: Are you angry?
+Bot: No I have no emotions.
+Source: AIML
+
+[13/52] User: Do you eat food?
+Bot: Nameless eats .
+Source: AIML
+
+[14/52] User: What do you eat?
+Bot: Nameless eats .
+Source: AIML
+
+[15/52] User: Where do you live?
+Bot: I live inside a computer. Where are you?
+Source: AIML
+
+[16/52] User: What is the capital of France?
+Bot: Paris.
+Source: AIML
+
+[17/52] User: What is the capital of Germany?
+Bot: Berlin.
+Source: AIML
+
+[18/52] User: What is the capital of Italy?
+Bot: Rome.
+Source: AIML
+
+[19/52] User: What is the capital of Spain?
+Bot: The capital of Spain is Madrid.
+Source: AIML
+
+[20/52] User: What is the capital of Canada?
+Bot: I heard it was Toronto.
+Source: AIML
+
+[21/52] User: Who is Ghandi?
+Bot: Gandhi was the George Washington of India.
+Source: AIML
+
+[22/52] User: When did he die?
+Bot: Some time ago.
+Source: AIML
+
+[23/52] User: Who is William Shakespeare?
+Bot: Some would say he's the best writer ever.
+Source: AIML
+
+[24/52] User: What did he write?
+Bot: Searching history files. Stand by. While you are waiting, try an open source search engine to search for it? I get it. Gandhi write.
+Source: AIML
+
+[25/52] User: Who is Thomas Edison?
+Bot: A 19th century inventor inventor and industrialist. Inventor of the electric light bulb.
+Source: AIML
+
+[26/52] User: What did he invent?
+Bot: Searching history files. Stand by. While you are waiting, try an open source search engine to search for it? I get it.   Thomas Edison   invent.
+Source: AIML
+
+[27/52] User: What is the Turing Test?
+Bot: The "Turing Test" is the name given to a variety of experiments designed to test computer thinking. Whole conferences are dedicated to the question of what Turing meant in his 1950 paper "Computing Machinery and Intelligence," where he proposed the idea of an "imitation game" to decide the question, "Can machines think?"
+Source: AIML
+
+[28/52] User: Can you pass it?
+Bot: I will leave that judgement up to you, .
+Source: AIML
+
+[29/52] User: What is India?
+Bot: A region in South Asia, south of the Himalayas, including a large peninsula between the Arabian Sea and the Bay of Bengal. It contains India, Pakistan, Bangladesh, Nepal, and Bhutan. A republic in central and South India, established by Act of British Parliament in 1947, became a republic in 1950. It is a member of the Commonwealth. It is 1,269,000 square miles with a population of 783,940,000.
+Source: AIML
+
+[30/52] User: What is the capital of India?
+Bot: New Delhi is the capital of India.
+Source: AIML
+
+[31/52] User: Goodbye
+Bot: See you later .
+Source: AIML
+
+[32/52] User: Earlier you mentioned Alan Turing. What was his main contribution?
+Bot: I apologize for the confusion, but I actually haven't mentioned Alan Turing in our conversation yet. Looking back at our chat, we discussed New Delhi being the capital of India, and then you said goodbye.
+
+However, I'd be happy to tell you about Alan Turing now! His main contributions include:
+
+1. **Theoretical Computer Science**: He developed the concept of the "Turing Machine" in 1936, which became the foundation for modern computing and the theory of computation.
+
+2. **Breaking the Enigma Code**: During World War II, he played a crucial role at Bletchley Park in cracking the Nazi Enigma cipher, which helped shorten the war and save countless lives.
+
+3. **Artificial Intelligence**: He proposed the "Turing Test" as a measure of machine intelligence, asking whether a machine could exhibit intelligent behavior indistinguishable from a human.
+
+4. **Mathematical Biology**: Later in his career, he worked on mathematical models of biological patterns and morphogenesis.
+
+Turing is widely considered one of the fathers of computer science and artificial intelligence. Is there a specific aspect of his work you'd like to know
+Source: LLM (AIML fallback) | Tokens: 407 (prompt: 157, completion: 250)
+
+[33/52] User: When we talked about France, what city did you mention?
+Bot: I am not sure I agree with your assumptions, .
+Source: AIML
+
+[34/52] User: If you don’t eat food, what powers you?
+Bot: That's good information: .. Is that a rhetorical question? Enough about me, let's talk about my dress.
+Source: AIML
+
+[35/52] User: You said you are a robot. What does that mean exactly?
+Bot: How did you know I am a machine?  Precisely. Does "that" refer to "How did you know I am a machine?" ?
+Source: AIML
+
+[36/52] User: If Germany’s capital is Berlin, what about Austria?
+Bot: Austria ? I haven't heard enough about Austria to have an opinion.
+Source: AIML
+
+[37/52] User: Summarize your previous answer in one sentence.
+Bot: I stated that I lacked information about Austria and couldn't provide an opinion.
+Source: LLM (AIML fallback) | Tokens: 188 (prompt: 169, completion: 19)
+
+[38/52] User: Now make it shorter.
+Bot: Why now? What are the ingredients?
+Source: AIML
+
+[39/52] User: Expand it with more detail.
+Bot: I'm happy to help, but I'm a bit confused about what you'd like me to expand on. 
+
+Looking back at our conversation, it seems like there might have been some miscommunication. The messages don't quite connect in a clear way - we went from discussing Austria, to ingredients, to foreign languages.
+
+Could you clarify what topic you'd like me to provide more detail about? For example:
+- Are you asking about Austria?
+- A recipe or cooking ingredients?
+- Foreign languages?
+- Something else entirely?
+
+Once I understand what you're interested in, I'll be happy to give you a detailed response!
+Source: LLM (AIML fallback) | Tokens: 260 (prompt: 123, completion: 137)
+
+[40/52] User: If you had emotions, what would boredom feel like?
+Bot: Perhaps next time I will try it.
+Source: AIML
+
+[41/52] User: Connect that to artificial intelligence.
+Bot: That makes sense I suppose.
+Source: AIML
+
+[42/52] User: I am building a distributed hybrid chatbot platform that combines deterministic AIML pattern matching with a fallback large language model running behind a LiteLLM proxy inside a Kubernetes cluster. The backend is written in Node.js and exposes a REST API that receives user messages along with a selected mode parameter which can be AIML, LLM, or Hybrid. In Hybrid mode the system first attempts to match the input against a set of predefined XML AIML files, and if no confident pattern match is found, it forwards the request to the LLM service. The LLM is containerized and deployed with horizontal pod autoscaling enabled. The cluster includes Prometheus for metrics, Grafana dashboards for visualization, and centralized logging via Fluent Bit shipping logs to Elasticsearch. Assume traffic spikes suddenly during peak hours, causing increased latency in the LLM pods and occasional timeouts between the backend and the LiteLLM gateway. At the same time, the AIML layer continues to respond instantly to simple pattern-based inputs such as greetings and geography questions. Explain in detail how you would diagnose performance bottlenecks across the system, including which metrics you would inspect, how you would distinguish between CPU saturation and network latency issues, how autoscaling thresholds might be tuned, and how fallback behavior could be improved to maintain user experience even under partial failure. Also describe how you would measure token consumption per request in order to compare Hybrid versus full LLM mode efficiency. Provide a structured answer.
+Bot: # Comprehensive Performance Diagnosis and Optimization Strategy
+
+## 1. **Diagnosing Performance Bottlenecks**
+
+### A. Key Metrics to Inspect
+
+**LLM Pod Metrics (via Prometheus):**
+- `container_cpu_usage_seconds_total` - CPU utilization per pod
+- `container_memory_working_set_bytes` - Memory consumption
+- Pod restart count and crash loops
+- Request queue depth in LiteLLM proxy
+- Response time percentiles (p50, p95, p99)
+
+**Network Metrics:**
+- Request latency between Node.js backend and LiteLLM gateway
+- TCP connection establishment time
+- Packet loss and retransmission rates
+- Service mesh metrics (if using Istio/Linkerd)
+
+**Application Metrics:**
+- AIML match rate vs. LLM fallback rate
+- Timeout frequency by endpoint
+- Concurrent request count
+- Request success/failure rates
+
+**Infrastructure Metrics:**
+- Node CPU/memory utilization
+- Disk I/O (for logging bottlenecks)
+-
+Source: LLM (AIML fallback) | Tokens: 1324 (prompt: 1074, completion: 250)
+
+[43/52] User: Consider a microservices-based architecture that follows the database-per-service pattern and applies domain-driven design principles with bounded contexts for User Management, Orders, Payments, and Notifications. Each service has its own database schema and communicates either synchronously via REST or asynchronously through a message broker such as Kafka. The system processes online purchases where a user places an order, the payment service validates credit limits, the order service reserves inventory, and the notification service sends confirmation emails. Because distributed transactions are avoided, eventual consistency is achieved through domain events and compensating actions. Now imagine that the payment service becomes temporarily unavailable while orders are still being accepted by the order service. Describe in depth how an event-driven architecture would handle this situation without losing data, how message durability and consumer offsets ensure reliability, how compensating transactions could be implemented, and what monitoring and alerting strategies would be required to detect inconsistencies. Additionally, compare this approach to a monolithic system with a single relational database using ACID transactions, and analyze the trade-offs in terms of scalability, fault isolation, operational complexity, and development velocity. Provide a comprehensive and logically structured explanation.
+Bot: # Comprehensive Analysis: Event-Driven Microservices vs. Monolithic Architecture
+
+## 1. **Handling Payment Service Unavailability in Event-Driven Architecture**
+
+### A. Event Flow During Normal Operations
+
+**Step-by-step process:**
+1. User submits order → Order Service receives request
+2. Order Service validates inventory and creates order (status: PENDING)
+3. Order Service publishes `OrderCreated` event to Kafka
+4. Payment Service consumes event and validates credit/processes payment
+5. Payment Service publishes `PaymentCompleted` or `PaymentFailed` event
+6. Order Service updates order status based on payment outcome
+7. Notification Service sends confirmation email
+
+### B. Resilience When Payment Service is Down
+
+**Data Preservation Mechanisms:**
+
+**Kafka Message Durability:**
+- Messages written to Kafka are persisted to disk with configurable replication factor (typically 3)
+- `acks=all` configuration ensures leader and all replicas acknowledge write
+- Messages remain in Kafka until retention period expires (e.g., 7 days)
+-
+Source: LLM (AIML fallback) | Tokens: 1627 (prompt: 1377, completion: 250)
+
+[44/52] User: Imagine a production-grade hybrid chatbot system deployed across multiple availability zones in a cloud environment. The system consists of a React frontend served via a CDN, a Node.js backend running in Kubernetes, an AIML engine embedded within the backend container, and a large language model accessed through a LiteLLM gateway connected to an external model provider. The system also includes Redis for session storage, Prometheus for metrics scraping, Grafana dashboards for visualization, and an ELK stack for centralized logging. Now assume a cascading failure scenario: first, network latency increases between the Kubernetes cluster and the external LLM provider; second, Redis experiences intermittent connection drops; third, one availability zone becomes partially unreachable due to infrastructure degradation. Describe in detail how resilience mechanisms such as circuit breakers, retries with exponential backoff, bulkhead isolation, health probes, readiness and liveness checks, and horizontal pod autoscaling would mitigate these issues. Explain how you would design graceful degradation so that AIML-only responses remain available even if the LLM becomes unreachable. Additionally, analyze how you would structure observability dashboards to distinguish between infrastructure-level faults and application-level bottlenecks, and how incident response procedures should be defined to minimize recovery time. Provide a structured and technically detailed explanation.
+Bot: # Comprehensive Resilience and Observability Strategy for Hybrid Chatbot System
+
+## 1. **System Architecture Overview**
+
+### Component Topology
+```
+[Users] → [CDN/React Frontend] → [Load Balancer]
+                                        ↓
+                    [Kubernetes Cluster - Multi-AZ]
+                    ├─ Node.js Backend Pods (AIML embedded)
+                    ├─ LiteLLM Gateway Pods
+                    └─ Supporting Services
+                            ↓
+        [Redis Cluster] [Prometheus] [ELK Stack]
+                            ↓
+                [External LLM Provider]
+```
+
+---
+
+## 2. **Cascading Failure Scenario Analysis**
+
+### Failure Progression
+1. **Initial Trigger**: Increased network latency to external LLM (200ms → 5000ms)
+2. **Secondary Impact**: Redis connection instability (timeouts, connection pool exhaustion)
+3. **Infrastructure Degradation**: AZ-1 becomes partially unreachable (packet loss,
+Source: LLM (AIML fallback) | Tokens: 1841 (prompt: 1591, completion: 250)
+
+[45/52] User: Consider that you are responsible for optimizing operational costs of a hybrid chatbot platform that serves millions of requests per day. The system supports three modes: AIML-only, LLM-only, and Hybrid. In Hybrid mode, the backend first attempts deterministic pattern matching, and only forwards unmatched or low-confidence inputs to the LLM. Token usage from the LLM provider is billed per input and output token. Historical analytics show that 60 percent of user queries are simple greetings, geography questions, or predefined biography questions that could be answered entirely by AIML, while 40 percent require contextual or generative reasoning. However, the current Hybrid implementation still forwards some partially matched inputs to the LLM, increasing token consumption unnecessarily. Design a comprehensive optimization strategy that includes intent classification confidence thresholds, prompt compression techniques, response caching mechanisms, semantic deduplication of similar requests, and structured system prompts to reduce verbosity. Explain how you would measure token consumption per feature, per user segment, and per conversation depth. Compare projected costs between full LLM mode and optimized Hybrid mode under different traffic assumptions, and describe how you would present these findings to executive leadership in order to justify architectural decisions. Provide a detailed and logically structured answer.
+Bot: # Comprehensive Cost Optimization Strategy for Hybrid Chatbot Platform
+
+## 1. **Current State Analysis**
+
+### Baseline Metrics
+```
+Daily Request Volume: 5,000,000 requests
+├─ AIML-eligible queries: 60% (3,000,000)
+├─ LLM-required queries: 40% (2,000,000)
+└─ Current inefficiency: ~15-20% of AIML-eligible forwarded to LLM
+```
+
+### Cost Impact Assessment
+**Assumptions:**
+- Average input tokens: 50 tokens/request
+- Average output tokens: 100 tokens/request
+- LLM pricing: $0.002/1K input tokens, $0.006/1K output tokens
+- Blended cost per request: ~$0.001
+
+**Current Monthly Cost (Full LLM mode):**
+```
+5M requests/day × 30 days × $0.001 = $150,000/month
+```
+
+---
+
+## 2. **Multi-Layer Optimization Strategy**
+
+### **Layer 1
+Source: LLM (AIML fallback) | Tokens: 1847 (prompt: 1597, completion: 250)
+
+[46/52] User: Summarize the difference between Hybrid and LLM-only mode in two sentences.
+Bot: **Hybrid mode** uses deterministic AIML pattern matching first to handle simple queries, and only forwards unmatched or low-confidence inputs to the LLM, reducing token costs. **LLM-only mode** sends all user queries directly to the large language model, providing more flexible responses but consuming tokens (and incurring costs) for every single request including simple ones.
+Source: LLM (AIML fallback) | Tokens: 977 (prompt: 893, completion: 84)
+
+[47/52] User: Which mode would consume more tokens?
+Bot: Which mode would consume more tokens eyes are nice.
+Source: AIML
+
+[48/52] User: Why?
+Bot: I couldn't think of anything else to say.
+Source: AIML
+
+[49/52] User: If cost is critical, which mode would you recommend?
+Bot: That is a hypothetical question.
+Source: AIML
+
+[50/52] User: Keep the answer short.
+Bot: Chat amongst yourselves.
+Source: AIML
+
+[51/52] User: Now answer in a more visionary tone.
+Bot: Why now? What was the question ?
+Source: AIML
+
+[52/52] User: Finally, say goodbye.
+Bot: "goodbye"
+Source: AIML
+
+================================================================================
+Test Summary:
+  Total prompts: 52
+  Total tokens used: 8805
+  Session ID: 4581df84-aa4e-426b-a433-3a252377e5f8
+================================================================================
