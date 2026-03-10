@@ -19,11 +19,14 @@ function App() {
   const [llmError, setLlmError] = useState(null)
   const messagesEndRef = useRef(null)
 
+  // Backend URL from environment variable
+  const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3011'
+
   // Fetch stats from backend on mount and periodically
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('http://localhost:3011/stats')
+        const response = await fetch(`${BACKEND_URL}/stats`)
         if (response.ok) {
           const data = await response.json()
           setTotalTokens(data.total_tokens || 0)
@@ -58,7 +61,7 @@ function App() {
     setMessages(prev => [...prev, { type: 'user', text: userMessage }])
 
     try {
-      const response = await fetch('http://localhost:3011/chat', {
+      const response = await fetch(`${BACKEND_URL}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

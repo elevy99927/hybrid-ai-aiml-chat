@@ -11,6 +11,10 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Accept build argument for backend URL
+ARG VITE_BACKEND_URL=http://localhost:3011
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+
 # Build the app
 RUN npm run build
 

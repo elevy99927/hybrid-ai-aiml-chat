@@ -37,7 +37,7 @@ You **MUST** have the following installed and configured before installing the b
 
 Install using Helm chart:
 ```bash
-helm upgrade --install my-chatbot https://github.com/elevy99927/hybrid-ai-aiml-chat/releases/download/helm-chart-v1.0.0/hybrid-chatbot-1.0.0.tgz
+helm upgrade --install my-chatbot https://github.com/elevy99927/hybrid-ai-aiml-chat/releases/download/helm-chart-v1.0.1/hybrid-chatbot-1.0.1.tgz
 ```
 
 Or with custom values:

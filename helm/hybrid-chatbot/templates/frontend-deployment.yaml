@@ -41,7 +41,7 @@ spec:
           containerPort: 3010
           protocol: TCP
         env:
-        - name: BACKEND_URL
+        - name: VITE_BACKEND_URL
           value: "http://{{ .Release.Name }}-backend:{{ .Values.service.backend.port }}"
         livenessProbe:
           httpGet:
