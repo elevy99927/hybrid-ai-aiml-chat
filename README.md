@@ -190,7 +190,7 @@ graph LR
     C -->|LLM Mode| D[LiteLLM<br/>Port 4000]
     D -->|API| E[AWS Bedrock<br/>Nova/Claude]
     D -->|API| F[Google Gemini<br/>Flash/Pro]
-    D -->|API| G[xAI Grok<br/>Grok-2]
+    D -->|API| G[Groq<br/>llama-3.1-8b-instant]
     
 
 ```

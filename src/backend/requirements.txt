@@ -1,7 +1,7 @@
 flask
 flask-cors
 python-aiml
-autocorrect
+litellm
 requests
 llmlingua
 PyCryptodome

@@ -12,6 +12,8 @@ if [ -z "$1" ]; then
     echo "No version provided, using version from Chart.yaml: ${VERSION}"
 else
     VERSION="$1"
+    # Remove 'v' prefix if provided
+    VERSION="${VERSION#v}"
     echo "Using provided version: ${VERSION}"
 fi
 
