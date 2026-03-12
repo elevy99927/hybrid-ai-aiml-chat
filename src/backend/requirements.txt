@@ -1,7 +1,7 @@
-flask
+flask>=2.0.0
 flask-cors
+werkzeug>=2.0.0
 python-aiml
 litellm
 requests
-llmlingua
-PyCryptodome
+#PyCryptodome

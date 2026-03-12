@@ -2,7 +2,10 @@ name: CI Tests
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main ]
+    branches-ignore:
+      - 'no-build/**'
+      - 'skip-ci/**'
   pull_request:
     branches: [ main ]
 

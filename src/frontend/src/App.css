@@ -211,42 +211,6 @@
   background: rgba(156, 39, 176, 0.2);
 }
 
-.llmlingua-button {
-  padding: 8px 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  min-width: 70px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  justify-content: center;
-}
-
-.llmlingua-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
-  transform: translateY(-1px);
-}
-
-.llmlingua-button.enabled {
-  border-color: #4CAF50;
-  background: rgba(76, 175, 80, 0.3);
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
-}
-
-.llmlingua-button.disabled {
-  border-color: #f44336;
-  background: rgba(244, 67, 54, 0.2);
-  opacity: 0.8;
-}
-
 .messages-container {
   flex: 1;
   overflow-y: auto;

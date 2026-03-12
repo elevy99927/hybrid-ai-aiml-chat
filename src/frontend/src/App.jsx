@@ -8,8 +8,6 @@ function App() {
   const [inputValue, setInputValue] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [chatMode, setChatMode] = useState('AIML') // AIML, LLM, or Hybrid
-  const [llmLinguaEnabled, setLlmLinguaEnabled] = useState(false)
-  const [showLinguaHelp, setShowLinguaHelp] = useState(false)
   const [showModeHelp, setShowModeHelp] = useState(false)
   const [showStatsHelp, setShowStatsHelp] = useState(false)
   const [sessionTokens, setSessionTokens] = useState(0)
@@ -69,8 +67,7 @@ function App() {
         body: JSON.stringify({ 
           message: userMessage,
           mode: chatMode,
-          session_id: sessionId,
-          llmlingua_enabled: llmLinguaEnabled
+          session_id: sessionId
         }),
       })
 
@@ -99,14 +96,12 @@ function App() {
       // Add bot response with source info and token count
       const responseText = data.response
       const sourceInfo = data.source ? ` 💭 ${data.source}` : ''
-      const linguaUsed = data.llmlingua_used ? ' 🗜️' : ''
       
       setMessages(prev => [...prev, { 
         type: 'bot', 
-        text: responseText + sourceInfo + linguaUsed,
+        text: responseText + sourceInfo,
         source: data.source,
         mode: data.mode,
-        llmlingua_used: data.llmlingua_used,
         tokens: tokens
       }])
     } catch (error) {
@@ -135,31 +130,19 @@ function App() {
     setChatMode(modes[nextIndex])
   }
 
-  const toggleLlmLingua = () => {
-    setLlmLinguaEnabled(prev => !prev)
-  }
-
-  const toggleLinguaHelp = () => {
-    setShowLinguaHelp(prev => !prev)
-    setShowModeHelp(false) // Close other help
-    setShowStatsHelp(false)
-  }
-
   const toggleModeHelp = () => {
     setShowModeHelp(prev => !prev)
-    setShowLinguaHelp(false) // Close other help
     setShowStatsHelp(false)
   }
 
   const toggleStatsHelp = () => {
     setShowStatsHelp(prev => !prev)
-    setShowLinguaHelp(false)
     setShowModeHelp(false)
   }
 
   const copyToClipboard = (text) => {
-    // Remove the source info (💭 ...) and LLMLingua indicator (🗜️) before copying
-    const cleanText = text.replace(/\s*💭\s*.+$/, '').replace(/\s*🗜️\s*$/, '')
+    // Remove the source info (💭 ...) before copying
+    const cleanText = text.replace(/\s*💭\s*.+$/, '')
     navigator.clipboard.writeText(cleanText).then(() => {
       // Optional: Show a brief "Copied!" notification
       console.log('Copied to clipboard')
@@ -210,30 +193,6 @@ function App() {
             <p>AIML + LLM powered conversations</p>
           </div>
           <div className="mode-selector">
-            <div className="control-group">
-              <button 
-                onClick={toggleLlmLingua}
-                className={`llmlingua-button ${llmLinguaEnabled ? 'enabled' : 'disabled'}`}
-                title={`LLMLingua: ${llmLinguaEnabled ? 'Enabled' : 'Disabled'}`}
-              >
-                🗜️ {llmLinguaEnabled ? 'ON' : 'OFF'}
-              </button>
-              <button 
-                onClick={toggleLinguaHelp}
-                className="help-button"
-                title="What is LLMLingua?"
-              >
-                ?
-              </button>
-              {showLinguaHelp && (
-                <div className="help-tooltip">
-                  <div className="help-content">
-                    <strong>LLMLingua</strong>
-                    <p>Compresses prompts up to 20x to reduce tokens and costs while maintaining response quality.</p>
-                  </div>
-                </div>
-              )}
-            </div>
             <div className="control-group">
               <button 
                 onClick={cycleChatMode}
