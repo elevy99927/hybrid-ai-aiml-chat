@@ -33,8 +33,7 @@ RUN useradd -m -u 1000 appuser && \
 # Clean up pip cache and unnecessary files
 RUN find /usr/local -type d -name __pycache__ -exec rm -r {} + 2>/dev/null || true && \
     find /usr/local -type f -name '*.pyc' -delete && \
-    find /usr/local -type f -name '*.pyo' -delete && \
-    find /usr/local -name "*.dist-info" -type d -exec rm -rf {} + 2>/dev/null || true
+    find /usr/local -type f -name '*.pyo' -delete
 
 # Switch to non-root user
 USER appuser

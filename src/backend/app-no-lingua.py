@@ -17,6 +17,7 @@ LITELLM_MAX_CONTEXT_TOKENS = int(os.getenv('LITELLM_MAX_CONTEXT_TOKENS', '1800')
 LITELLM_MAX_COMPLETION_TOKENS = int(os.getenv('LITELLM_MAX_COMPLETION_TOKENS', '150'))
 LITELLM_SYSTEM_PROMPT = os.getenv('LITELLM_SYSTEM_PROMPT', 'You are a helpful and friendly chatbot assistant.')
 
+
 BRAIN_FILE = "./data/aiml_pretrained_model.dump"
 k = aiml.Kernel()
 
@@ -167,6 +168,7 @@ def chat():
         user_message = data.get("message", "")
         mode = data.get("mode", "AIML")
         session_id = data.get("session_id", None)
+
         
         # Generate or use existing session ID
         if not session_id:
@@ -231,7 +233,7 @@ def chat():
                     "session_id": session_id
                 })
             else:
-                # Use LLM as fallback
+                # Use LLM as fallback (use compression setting from request)
                 llm_result = get_llm_response(question, session_id)
                 
                 # Update conversation history with LLM response
@@ -272,6 +274,7 @@ def chat():
                     "mode": mode,
                     "tokens": {"prompt": 0, "completion": 0, "total": 0},
                     "session_id": session_id
+
                 })
             else:
                 return jsonify({
@@ -293,8 +296,12 @@ def chat():
 
 
 def get_llm_response(message, session_id=None):
-    """Get response from LiteLLM with conversation context"""
+    """Get response from LiteLLM with conversation context and optional prompt compression"""
     try:
+
+        compressed_message = message
+        
+
         # Build messages with conversation history for context
         # Note: AWS Bedrock requires conversations to start with user message
         messages = []
@@ -342,19 +349,20 @@ def get_llm_response(message, session_id=None):
             
             messages.extend(context_messages)
             print(f"DEBUG LLM: Messages being sent to LLM: {messages}")
-
         else:
             print(f"DEBUG LLM: No history found for session {session_id}")
         
-        # Add current message
+        # Add current message (compressed if LLMLingua was used)
         # Prepend system prompt to first user message for Bedrock compatibility
-        current_message = message
+        current_message = compressed_message
         if not messages:
             # First message in conversation - include system prompt
-            current_message = f"{LITELLM_SYSTEM_PROMPT}\n\n{message}"
+            current_message = f"{LITELLM_SYSTEM_PROMPT}\n\n{compressed_message}"
         
         messages.append({"role": "user", "content": current_message})
         
+        # Debug: Print full prompt being sent to LiteLLM
+
         response = requests.post(
             f"{LITELLM_BASE_URL}/chat/completions",
             headers={
@@ -379,7 +387,7 @@ def get_llm_response(message, session_id=None):
                     "prompt": usage.get('prompt_tokens', 0),
                     "completion": usage.get('completion_tokens', 0),
                     "total": usage.get('total_tokens', 0)
-                },
+                }
                 "error": None
             }
         else:
@@ -393,21 +401,21 @@ def get_llm_response(message, session_id=None):
             print(f"LLM API Error: {response.status_code} - {error_msg}")
             return {
                 "content": "Sorry, I'm having trouble connecting to the LLM service.",
-                "tokens": {"prompt": 0, "completion": 0, "total": 0},
+                "tokens": {"prompt": 0, "completion": 0, "total": 0}
                 "error": error_msg
             }
     
     except requests.exceptions.Timeout:
         return {
             "content": "Sorry, the LLM service is taking too long to respond.",
-            "tokens": {"prompt": 0, "completion": 0, "total": 0},
+            "tokens": {"prompt": 0, "completion": 0, "total": 0}
             "error": "Request timeout (30s)"
         }
     except Exception as e:
         print(f"LLM Error: {str(e)}")
         return {
             "content": "Sorry, I couldn't get a response from the LLM service.",
-            "tokens": {"prompt": 0, "completion": 0, "total": 0},
+            "tokens": {"prompt": 0, "completion": 0, "total": 0}
             "error": str(e)
         }
 

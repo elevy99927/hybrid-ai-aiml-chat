@@ -6,6 +6,6 @@ kubectl port-forward -n lite-llm  svc/lite-helm-litellm  8080:4000 &
 
 # chatbot
 
-kubectl port-forward -n default  svc/hybrid-bot-frontend  3010:3010 &
-kubectl port-forward -n default  svc/hybrid-bot-backend  3011:3011 &
+kubectl port-forward -n default  svc/my-chatbot-frontend  3010:3010 &
+kubectl port-forward -n default  svc/my-chatbot-backend  3011:3011 &
 

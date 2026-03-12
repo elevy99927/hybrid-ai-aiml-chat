@@ -27,7 +27,6 @@ echo ${BACKEND_IMAGE}:${TAG}
 docker buildx build \
     --platform linux/amd64,linux/arm64 \
     -t "${BACKEND_IMAGE}:${TAG}" \
-    -t "${BACKEND_IMAGE}:dev" \
     --push \
     ./src/backend
 
@@ -39,7 +38,6 @@ echo "Building frontend image..."
 docker buildx build \
     --platform linux/amd64,linux/arm64 \
     -t "${FRONTEND_IMAGE}:${TAG}" \
-    -t "${FRONTEND_IMAGE}:dev" \
     --push \
     ./src/frontend
 
@@ -56,7 +54,6 @@ echo "  - ${BACKEND_IMAGE}:dev"
 echo ""
 echo "Frontend images:"
 echo "  - ${FRONTEND_IMAGE}:${TAG}"
-echo "  - ${FRONTEND_IMAGE}:dev"
 echo ""
 echo "To update your Helm deployment:"
 echo "  helm upgrade hybrid-bot ./helm/hybrid-chatbot \\"

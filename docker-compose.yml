@@ -17,9 +17,6 @@ services:
                      #gemini-3-flash-preview
       - LITELLM_MAX_CONTEXT_TOKENS=3000
       - LITELLM_MAX_COMPLETION_TOKENS=250
-      - LLMLINGUA_MODEL=microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank
-      - LLMLINGUA_DEVICE=cpu
-      - DEBUG_LLMLINGUA=true
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped

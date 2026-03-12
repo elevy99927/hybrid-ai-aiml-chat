@@ -96,9 +96,6 @@ backend:
     LITELLM_MAX_CONTEXT_TOKENS: "3000"  # Maximum tokens for conversation history (sliding window removes oldest messages when exceeded)
     LITELLM_MAX_COMPLETION_TOKENS: "250"  # Maximum tokens for LLM response generation (limits response length)
     LITELLM_SYSTEM_PROMPT: "You are a helpful and friendly chatbot assistant. Answer questions naturally and conversationally. You can discuss any topic the user asks about."
-    LLMLINGUA_MODEL: "microsoft/llmlingua-2-bert-base-multilingual-cased-meetingbank"
-    LLMLINGUA_DEVICE: "cpu"
-    DEBUG_LLMLINGUA: "true"
     DEBUG: "true"
   secrets:
     LITELLM_API_KEY: "sk-uNkngIaEglGI5HojaGQ4hQ"  # Set via --set or secrets
